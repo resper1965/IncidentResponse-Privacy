@@ -37,6 +37,7 @@ done
 # Criar arquivo temporário com todos os arquivos Python
 echo "📦 Preparando arquivos para deploy..."
 
+<<<<<<< HEAD
 # Copiar scripts de instalação e manutenção
 echo "📋 Copiando scripts de instalação..."
 scp scripts/install_service.sh scripts/fix_502.sh scripts/debug_service.sh scripts/test_postgresql.sh scripts/populate-database.sh scripts/populate-database.py scripts/github-fix-simple.sh scripts/fix-dependencies.sh $VPS_USER@$VPS_HOST:/tmp/
@@ -44,6 +45,15 @@ scp scripts/install_service.sh scripts/fix_502.sh scripts/debug_service.sh scrip
 # Executar instalação da infraestrutura na VPS
 echo "🏗️ Instalando infraestrutura na VPS..."
 ssh $VPS_USER@$VPS_HOST "cd /tmp && chmod +x *.sh && ./install_service.sh"
+=======
+# Copiar scripts de instalação
+echo "📋 Copiando scripts de instalação..."
+scp install_service.sh fix_502.sh debug_service.sh test_postgresql.sh $VPS_USER@$VPS_HOST:/tmp/
+
+# Executar instalação da infraestrutura na VPS
+echo "🏗️ Instalando infraestrutura na VPS..."
+ssh $VPS_USER@$VPS_HOST "cd /tmp && chmod +x install_service.sh && ./install_service.sh"
+>>>>>>> f36977b1e82c9e3a85f66b08b07aff8b980e5345
 
 # Criar diretório de templates na VPS
 echo "📁 Criando estrutura de diretórios..."
