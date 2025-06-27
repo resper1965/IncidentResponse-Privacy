@@ -30,7 +30,7 @@ pillow==10.1.0
 beautifulsoup4==4.12.2
 lxml==4.9.3
 striprtf==0.0.26
-eml-parser==1.17.7
+eml-parser==2.0.0
 
 # NLP e IA
 spacy==3.7.2
