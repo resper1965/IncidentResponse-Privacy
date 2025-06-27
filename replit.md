@@ -26,7 +26,8 @@ The application follows a modular pipeline architecture with the following key c
 - **main.py**: Main orchestration pipeline that coordinates all components
 
 ### User Interface
-- **dashboard.py**: Streamlit dashboard for data visualization and compliance reporting
+- **web_interface.py**: Flask web application with modern dashboard for data visualization and compliance reporting
+- **templates/dashboard.html**: HTML template with elegant design and real-time processing status
 
 ### Supported File Formats
 - Plain text files (.txt)
@@ -108,6 +109,10 @@ Preferred communication style: Simple, everyday language.
 - **June 27, 2025**: Added directory selection feature for document scanning with custom path support
 - **June 27, 2025**: Implemented priority company classification system with predefined enterprise list including BRADESCO, PETROBRAS, ONS, EMBRAER, REDE DOR, ED GLOBO, GLOBO, ELETROBRAS, CREFISA, EQUINIX, COHESITY, NETAPP, HITACHI, LENOVO
 - **June 27, 2025**: Added enterprise management interface with add/remove functionality and contact information tracking
+- **June 27, 2025**: Replaced Streamlit with Flask web interface per user request
+- **June 27, 2025**: Updated data pipeline to save results in Excel-compatible format with domain/company filtering
+- **June 27, 2025**: Added real-time processing status monitoring with progress bars and file tracking
+- **June 27, 2025**: Implemented custom directory selection for complete file tree processing
 
 ## Priority Company Classification
 

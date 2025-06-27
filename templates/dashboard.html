@@ -518,24 +518,73 @@
         }
         
         function processarArquivos() {
-            mostrarMensagem('success', 'Iniciando processamento...');
+            const diretorio = document.getElementById('diretorio-arquivos').value.trim();
+            
+            if (!diretorio) {
+                mostrarMensagem('error', 'Por favor, informe o diretório dos arquivos');
+                return;
+            }
+            
+            // Mostrar status de processamento
+            document.getElementById('status-processamento').style.display = 'block';
+            document.getElementById('btn-processar').disabled = true;
+            document.getElementById('btn-processar').textContent = 'Processando...';
+            
+            // Reset progress
+            document.getElementById('progress-fill').style.width = '0%';
+            document.getElementById('arquivo-atual').textContent = 'Iniciando processamento...';
+            document.getElementById('contador-progresso').textContent = '0 de 0 arquivos processados';
             
             fetch('/api/processar', {
-                method: 'POST'
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    diretorio: diretorio
+                })
             })
             .then(response => response.json())
             .then(data => {
+                // Esconder status de processamento
+                document.getElementById('status-processamento').style.display = 'none';
+                document.getElementById('btn-processar').disabled = false;
+                document.getElementById('btn-processar').textContent = 'Processar Arquivos';
+                
                 if (data.status === 'success') {
                     mostrarMensagem('success', data.message);
                     carregarEstatisticas();
+                    carregarDominios();
+                    carregarEmpresas();
                     carregarResultados();
                 } else {
                     mostrarMensagem('error', data.message);
                 }
             })
             .catch(error => {
+                // Esconder status de processamento
+                document.getElementById('status-processamento').style.display = 'none';
+                document.getElementById('btn-processar').disabled = false;
+                document.getElementById('btn-processar').textContent = 'Processar Arquivos';
+                
                 mostrarMensagem('error', 'Erro no processamento: ' + error.message);
             });
+        }
+        
+        function verificarStatusProcessamento() {
+            fetch('/api/status-processamento')
+                .then(response => response.json())
+                .then(data => {
+                    if (data.processando) {
+                        document.getElementById('progress-fill').style.width = 
+                            ((data.progresso / data.total_arquivos) * 100) + '%';
+                        document.getElementById('arquivo-atual').textContent = 
+                            'Processando: ' + data.arquivo_atual;
+                        document.getElementById('contador-progresso').textContent = 
+                            data.progresso + ' de ' + data.total_arquivos + ' arquivos processados';
+                    }
+                })
+                .catch(error => console.error('Erro ao verificar status:', error));
         }
         
         function carregarEmpresas() {
