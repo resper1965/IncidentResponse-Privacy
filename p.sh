@@ -5,3 +5,4 @@ git pull
 git add .
 git commit -m "Minha atualização"
 git push
+chmod +x *.sh
