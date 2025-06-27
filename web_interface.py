@@ -48,7 +48,6 @@ def run_async(coro):
     finally:
         loop.close()
 
-@app.before_first_request
 def initialize_systems():
     """Initialize both SQLite and PostgreSQL systems"""
     global POSTGRESQL_ENABLED
@@ -288,12 +287,63 @@ def api_carregar_regex_padrao():
     except Exception as e:
         return jsonify({'status': 'error', 'message': str(e)})
 
+# New AI-powered endpoints for PostgreSQL system
+@app.route('/api/ai-metrics')
+def api_ai_metrics():
+    """API para métricas do sistema de IA em tempo real"""
+    if not POSTGRESQL_ENABLED:
+        return jsonify({'status': 'disabled', 'message': 'Sistema PostgreSQL não disponível'})
+    
+    try:
+        metrics = run_async(db_manager.get_dashboard_metrics())
+        return jsonify(metrics)
+    except Exception as e:
+        return jsonify({'status': 'error', 'message': str(e)})
+
+@app.route('/api/processing-queue')
+def api_processing_queue():
+    """API para fila de processamento com prioridades AI"""
+    if not POSTGRESQL_ENABLED:
+        return jsonify([])
+    
+    try:
+        queue = run_async(db_manager.get_processing_queue())
+        return jsonify(queue)
+    except Exception as e:
+        return jsonify({'status': 'error', 'message': str(e)})
+
+@app.route('/api/search-priorities-pg')
+def api_search_priorities_pg():
+    """API para prioridades de busca do PostgreSQL"""
+    if not POSTGRESQL_ENABLED:
+        return jsonify([])
+    
+    try:
+        priorities = run_async(db_manager.get_search_priorities())
+        return jsonify(priorities)
+    except Exception as e:
+        return jsonify({'status': 'error', 'message': str(e)})
+
+@app.route('/api/system-status')
+def api_system_status():
+    """API para status dos sistemas"""
+    return jsonify({
+        'sqlite_enabled': True,
+        'postgresql_enabled': POSTGRESQL_ENABLED,
+        'ai_system_enabled': POSTGRESQL_ENABLED,
+        'timestamp': datetime.now().isoformat()
+    })
+
 if __name__ == '__main__':
-    # Inicializar banco de dados
-    inicializar_banco()
+    # Inicializar sistemas
+    initialize_systems()
     
     # Verificar se existe pasta templates
     if not os.path.exists('templates'):
         os.makedirs('templates')
+    
+    print("🚀 Iniciando servidor web na porta 5000...")
+    print(f"📊 Sistema SQLite: Ativo")
+    print(f"🤖 Sistema PostgreSQL: {'Ativo' if POSTGRESQL_ENABLED else 'Inativo'}")
     
     app.run(host='0.0.0.0', port=5000, debug=True)
