@@ -96,7 +96,7 @@
             color: #374151;
         }
         
-        select, button {
+        select, button, input[type="text"] {
             padding: 0.5rem 1rem;
             border: 1px solid #d1d5db;
             border-radius: 6px;
@@ -105,7 +105,11 @@
             transition: border-color 0.2s;
         }
         
-        select:focus {
+        input[type="text"] {
+            min-width: 200px;
+        }
+        
+        select:focus, input[type="text"]:focus {
             border-color: #3b82f6;
             outline: none;
             box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
@@ -208,6 +212,47 @@
             color: #dc2626;
             border: 1px solid #fecaca;
         }
+        
+        .status-processamento {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 8px;
+            border: 1px solid #e1e5e9;
+            margin-bottom: 2rem;
+        }
+        
+        .status-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+        
+        .progress-bar {
+            width: 200px;
+            height: 8px;
+            background: #e1e5e9;
+            border-radius: 4px;
+            overflow: hidden;
+        }
+        
+        .progress-fill {
+            height: 100%;
+            background: #3b82f6;
+            width: 0%;
+            transition: width 0.3s ease;
+        }
+        
+        .status-details {
+            display: flex;
+            gap: 2rem;
+            font-size: 0.875rem;
+            color: #6b7280;
+        }
+        
+        .status-details p {
+            margin: 0;
+        }
     </style>
 </head>
 <body>
@@ -237,7 +282,39 @@
             </div>
         </div>
         
-        <!-- Controles -->
+        <!-- Controles de Processamento -->
+        <div class="controls">
+            <div class="control-group">
+                <label for="diretorio-arquivos">Diretório dos Arquivos:</label>
+                <input type="text" id="diretorio-arquivos" value="data" placeholder="Caminho do diretório">
+            </div>
+            
+            <div class="control-group">
+                <label>&nbsp;</label>
+                <button onclick="processarArquivos()" id="btn-processar">Processar Arquivos</button>
+            </div>
+            
+            <div class="control-group">
+                <label>&nbsp;</label>
+                <button onclick="carregarEmpresas()">Carregar Empresas</button>
+            </div>
+        </div>
+        
+        <!-- Status do Processamento -->
+        <div id="status-processamento" class="status-processamento" style="display: none;">
+            <div class="status-header">
+                <h3>Processando Arquivos...</h3>
+                <div class="progress-bar">
+                    <div class="progress-fill" id="progress-fill"></div>
+                </div>
+            </div>
+            <div class="status-details">
+                <p id="arquivo-atual">Iniciando processamento...</p>
+                <p id="contador-progresso">0 de 0 arquivos processados</p>
+            </div>
+        </div>
+        
+        <!-- Controles de Filtros -->
         <div class="controls">
             <div class="control-group">
                 <label for="filtro-dominio">Filtrar por Domínio:</label>
@@ -261,16 +338,6 @@
             <div class="control-group">
                 <label>&nbsp;</label>
                 <button onclick="exportarExcel()">Exportar Excel</button>
-            </div>
-            
-            <div class="control-group">
-                <label>&nbsp;</label>
-                <button onclick="processarArquivos()">Processar Arquivos</button>
-            </div>
-            
-            <div class="control-group">
-                <label>&nbsp;</label>
-                <button onclick="carregarEmpresas()">Carregar Empresas</button>
             </div>
         </div>
         

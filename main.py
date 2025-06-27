@@ -19,9 +19,12 @@ from database import (
     verificar_empresa_prioritaria
 )
 
-def processar_arquivos():
+def processar_arquivos(diretorio_base="data"):
     """
     Pipeline principal que coordena todo o processo de extração
+    
+    Args:
+        diretorio_base (str): Diretório base para varredura de arquivos
     """
     print("=== INICIANDO PIPELINE LGPD ===")
     
@@ -32,18 +35,17 @@ def processar_arquivos():
     print("Carregando modelo spaCy...")
     inicializar_spacy()
     
-    # Verificar se a pasta data existe
-    if not os.path.exists('data'):
-        os.makedirs('data')
-        print("Pasta 'data' criada. Adicione arquivos para processamento.")
+    # Verificar se o diretório existe
+    if not os.path.exists(diretorio_base):
+        print(f"Diretório '{diretorio_base}' não encontrado.")
         return
     
     # Listar arquivos recursivamente
-    print("Escaneando arquivos...")
-    arquivos = listar_arquivos_recursivos('data')
+    print(f"Escaneando arquivos em '{diretorio_base}'...")
+    arquivos = listar_arquivos_recursivos(diretorio_base)
     
     if not arquivos:
-        print("Nenhum arquivo encontrado na pasta 'data'.")
+        print(f"Nenhum arquivo encontrado no diretório '{diretorio_base}'.")
         return
     
     print(f"Encontrados {len(arquivos)} arquivos para processamento.")

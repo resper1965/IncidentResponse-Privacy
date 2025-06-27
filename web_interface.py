@@ -65,10 +65,28 @@ def api_resultados():
 def api_processar():
     """API para executar processamento de arquivos"""
     try:
-        processar_arquivos()
+        data = request.get_json()
+        diretorio = data.get('diretorio', 'data') if data else 'data'
+        
+        # Validar se o diretório existe
+        if not os.path.exists(diretorio):
+            return jsonify({'status': 'error', 'message': f'Diretório não encontrado: {diretorio}'})
+        
+        processar_arquivos(diretorio)
         return jsonify({'status': 'success', 'message': 'Processamento concluído'})
     except Exception as e:
         return jsonify({'status': 'error', 'message': str(e)})
+
+@app.route('/api/status-processamento')
+def api_status_processamento():
+    """API para obter status do processamento em tempo real"""
+    # Por enquanto retorna status simples, pode ser expandido com WebSockets
+    return jsonify({
+        'processando': False,
+        'arquivo_atual': '',
+        'progresso': 0,
+        'total_arquivos': 0
+    })
 
 @app.route('/api/carregar-empresas', methods=['POST'])
 def api_carregar_empresas():
