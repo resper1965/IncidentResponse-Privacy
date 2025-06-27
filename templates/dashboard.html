@@ -394,6 +394,7 @@
             <button class="tab-button" onclick="mostrarAba('criticidade')">Classificação por Criticidade</button>
             <button class="tab-button" onclick="mostrarAba('prioridades')">Prioridade de Busca</button>
             <button class="tab-button" onclick="mostrarAba('regex')">Padrões Regex</button>
+            <button class="tab-button" onclick="mostrarAba('ia-avancada')">IA Avançada</button>
         </div>
         
         <!-- Aba Resultados LGPD -->
@@ -600,6 +601,97 @@
                             </tr>
                         </tbody>
                     </table>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Aba IA Avançada -->
+        <div id="aba-ia-avancada" class="tab-content">
+            <div class="data-table">
+                <div class="table-header">
+                    <h3>Processamento Inteligente com IA</h3>
+                    <span>Próxima evolução: Classificação automática e priorização empresarial</span>
+                </div>
+                
+                <div style="padding: 1.5rem;">
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; margin-bottom: 2rem;">
+                        <!-- Funcionalidades Implementadas -->
+                        <div style="background: #f0f9ff; padding: 1.5rem; border-radius: 8px; border-left: 4px solid #3b82f6;">
+                            <h4 style="margin: 0 0 1rem 0; color: #1e40af;">✅ Funcionalidades Implementadas</h4>
+                            <ul style="margin: 0; padding-left: 1.5rem; color: #1e40af; font-size: 0.875rem;">
+                                <li><strong>Pré-análise Inteligente:</strong> Identificação automática de empresas nos documentos</li>
+                                <li><strong>Priorização por Empresa:</strong> Processamento ordenado conforme tabela de prioridades</li>
+                                <li><strong>Detecção Dual:</strong> Nome da empresa + domínio de email</li>
+                                <li><strong>Classificação por Criticidade:</strong> Três níveis (Alta, Média, Baixa)</li>
+                                <li><strong>Relatórios Inteligentes:</strong> Estatísticas por empresa e prioridade</li>
+                            </ul>
+                        </div>
+                        
+                        <!-- Próximos Passos -->
+                        <div style="background: #f0fdf4; padding: 1.5rem; border-radius: 8px; border-left: 4px solid #16a34a;">
+                            <h4 style="margin: 0 0 1rem 0; color: #15803d;">🚀 Próximos Passos de IA</h4>
+                            <ul style="margin: 0; padding-left: 1.5rem; color: #15803d; font-size: 0.875rem;">
+                                <li><strong>ML para Classificação:</strong> Modelos treinados para identificação de entidades</li>
+                                <li><strong>NLP Contextual:</strong> Análise semântica avançada de documentos</li>
+                                <li><strong>Detecção de Anomalias:</strong> Identificação automática de padrões suspeitos</li>
+                                <li><strong>Recomendações Inteligentes:</strong> Sugestões de compliance baseadas em IA</li>
+                                <li><strong>Auto-learning:</strong> Melhoria contínua dos padrões de detecção</li>
+                            </ul>
+                        </div>
+                    </div>
+                    
+                    <!-- Fluxo de Processamento -->
+                    <div style="background: white; border: 1px solid #e1e5e9; border-radius: 8px; padding: 1.5rem; margin-bottom: 2rem;">
+                        <h4 style="margin: 0 0 1rem 0; color: #1f2937;">🔄 Fluxo de Processamento Inteligente</h4>
+                        <div style="display: grid; grid-template-columns: repeat(5, 1fr); gap: 1rem; text-align: center;">
+                            <div style="padding: 1rem; background: #f8f9fa; border-radius: 6px;">
+                                <div style="font-size: 1.5rem; margin-bottom: 0.5rem;">📁</div>
+                                <div style="font-size: 0.75rem; font-weight: 500;">Escaneamento</div>
+                            </div>
+                            <div style="padding: 1rem; background: #f8f9fa; border-radius: 6px;">
+                                <div style="font-size: 1.5rem; margin-bottom: 0.5rem;">🔍</div>
+                                <div style="font-size: 0.75rem; font-weight: 500;">Pré-análise</div>
+                            </div>
+                            <div style="padding: 1rem; background: #f8f9fa; border-radius: 6px;">
+                                <div style="font-size: 1.5rem; margin-bottom: 0.5rem;">🏢</div>
+                                <div style="font-size: 0.75rem; font-weight: 500;">Classificação</div>
+                            </div>
+                            <div style="padding: 1rem; background: #f8f9fa; border-radius: 6px;">
+                                <div style="font-size: 1.5rem; margin-bottom: 0.5rem;">⚡</div>
+                                <div style="font-size: 0.75rem; font-weight: 500;">Priorização</div>
+                            </div>
+                            <div style="padding: 1rem; background: #f8f9fa; border-radius: 6px;">
+                                <div style="font-size: 1.5rem; margin-bottom: 0.5rem;">📊</div>
+                                <div style="font-size: 0.75rem; font-weight: 500;">Relatórios</div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Regras de Priorização -->
+                    <div style="background: #fffbeb; border: 1px solid #f59e0b; border-radius: 8px; padding: 1.5rem;">
+                        <h4 style="margin: 0 0 1rem 0; color: #92400e;">⚖️ Regras de Processamento por Prioridade</h4>
+                        <div style="font-size: 0.875rem; color: #92400e; line-height: 1.6;">
+                            <p><strong>1. Identificação de Empresa:</strong></p>
+                            <ul style="margin: 0.5rem 0 1rem 1.5rem;">
+                                <li>Presença do nome da empresa no documento</li>
+                                <li>Detecção de emails com domínio da empresa (@empresa.com)</li>
+                            </ul>
+                            
+                            <p><strong>2. Ordem de Processamento:</strong></p>
+                            <ul style="margin: 0.5rem 0 1rem 1.5rem;">
+                                <li>Prioridade 1: BRADESCO (@bradesco.com.br) - Primeiro</li>
+                                <li>Prioridade 2-10: Outras empresas conforme configuração</li>
+                                <li>Não classificados: Processados por último</li>
+                            </ul>
+                            
+                            <p><strong>3. Benefícios:</strong></p>
+                            <ul style="margin: 0.5rem 0 0 1.5rem;">
+                                <li>Clientes importantes atendidos primeiro</li>
+                                <li>Organização transparente do processo</li>
+                                <li>Flexibilidade para ajustes dinâmicos</li>
+                            </ul>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>

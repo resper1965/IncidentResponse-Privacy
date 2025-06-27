@@ -27,6 +27,7 @@ from database import (
     carregar_regex_padrao
 )
 from main import processar_arquivos
+from ai_enhanced_processor import processar_arquivos_com_ia
 
 app = Flask(__name__)
 
@@ -79,8 +80,18 @@ def api_processar():
         if not os.path.exists(diretorio):
             return jsonify({'status': 'error', 'message': f'Diretório não encontrado: {diretorio}'})
         
-        processar_arquivos(diretorio)
-        return jsonify({'status': 'success', 'message': 'Processamento concluído'})
+        # Usar processador avançado com IA se disponível
+        try:
+            estatisticas = processar_arquivos_com_ia(diretorio)
+            return jsonify({
+                'status': 'success', 
+                'message': 'Processamento com IA concluído',
+                'estatisticas': estatisticas
+            })
+        except Exception as e:
+            # Fallback para processador básico
+            processar_arquivos(diretorio)
+            return jsonify({'status': 'success', 'message': 'Processamento básico concluído'})
     except Exception as e:
         return jsonify({'status': 'error', 'message': str(e)})
 

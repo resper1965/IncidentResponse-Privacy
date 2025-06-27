@@ -16,7 +16,8 @@ from database import (
     verificar_prioridade,
     inserir_resultado_analise,
     extrair_dominio_de_email,
-    verificar_empresa_prioritaria
+    verificar_empresa_prioritaria,
+    obter_prioridades_busca
 )
 
 def processar_arquivos(diretorio_base="data"):
