@@ -300,6 +300,12 @@
             color: #6b7280;
         }
         
+        .export-btn:hover {
+            background: #e5e7eb !important;
+            border-color: #9ca3af !important;
+            color: #374151 !important;
+        }
+        
         .status-details p {
             margin: 0;
         }
@@ -481,12 +487,7 @@
                 <button onclick="limparFiltros()" style="background: #6b7280; color: white; border: none; padding: 0.5rem 1rem; border-radius: 6px;">
                     Limpar Filtros
                 </button>
-                <button onclick="exportarExcel()" style="background: #059669; color: white; border: none; padding: 0.5rem 1rem; border-radius: 6px;">
-                    📊 Exportar Excel
-                </button>
-                <button onclick="exportarRelatorioCompleto()" style="background: #7c3aed; color: white; border: none; padding: 0.5rem 1rem; border-radius: 6px;">
-                    📋 Relatório Completo
-                </button>
+
             </div>
         </div>
         
@@ -594,6 +595,21 @@
                             </tr>
                         </tbody>
                     </table>
+                </div>
+            </div>
+            
+            <!-- Seção de Exportação Discreta -->
+            <div style="margin-top: 1rem; padding: 0.75rem 1rem; background: #f8f9fa; border-radius: 6px; border: 1px solid #e1e5e9;">
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                    <span style="font-size: 0.75rem; color: #6b7280; font-weight: 500;">Exportar Dados</span>
+                    <div style="display: flex; gap: 0.5rem;">
+                        <button onclick="exportarExcel()" class="export-btn" style="background: #f8f9fa; color: #6b7280; border: 1px solid #d1d5db; padding: 0.375rem 0.75rem; border-radius: 4px; font-size: 0.75rem; cursor: pointer; transition: all 0.2s;">
+                            Excel
+                        </button>
+                        <button onclick="exportarRelatorioCompleto()" class="export-btn" style="background: #f8f9fa; color: #6b7280; border: 1px solid #d1d5db; padding: 0.375rem 0.75rem; border-radius: 4px; font-size: 0.75rem; cursor: pointer; transition: all 0.2s;">
+                            Relatório
+                        </button>
+                    </div>
                 </div>
             </div>
         </div>
