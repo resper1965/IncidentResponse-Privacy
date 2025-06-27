@@ -26,4 +26,13 @@ dependencies = [
     "sqlalchemy>=2.0.41",
     "streamlit>=1.46.1",
     "watchdog>=6.0.0",
+    "python-pptx>=1.0.2",
+    "beautifulsoup4>=4.13.4",
+    "lxml>=6.0.0",
+    "striprtf>=0.0.29",
+    "eml-parser>=2.0.0",
+    "langchain-text-splitters>=0.3.8",
+    "pyyaml>=6.0.2",
+    "pymupdf>=1.26.1",
+    "langchain-core>=0.3.66",
 ]

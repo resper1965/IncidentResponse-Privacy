@@ -329,18 +329,44 @@
         <!-- Controles de Processamento -->
         <div class="controls">
             <div class="control-group">
-                <label for="diretorio-arquivos">Diretório dos Arquivos:</label>
-                <input type="text" id="diretorio-arquivos" value="data" placeholder="Caminho do diretório">
+                <label for="diretorio-arquivos">Navegar Diretórios (a partir de /data):</label>
+                <div style="display: flex; gap: 10px; align-items: center;">
+                    <input type="text" id="diretorio-arquivos" value="data" placeholder="Caminho do diretório" readonly>
+                    <button onclick="abrirNavegadorDiretorios()" style="padding: 0.5rem 1rem;">📂 Navegar</button>
+                </div>
             </div>
             
             <div class="control-group">
                 <label>&nbsp;</label>
-                <button onclick="processarArquivos()" id="btn-processar">Processar Arquivos</button>
+                <button onclick="processarArquivos()" id="btn-processar">🔍 Processar Toda Árvore de Arquivos</button>
             </div>
             
             <div class="control-group">
                 <label>&nbsp;</label>
-                <button onclick="carregarEmpresas()">Carregar Empresas</button>
+                <button onclick="carregarEmpresas()" title="Carrega lista padrão de empresas prioritárias para o sistema">📋 Carregar Empresas Padrão</button>
+            </div>
+        </div>
+        
+        <!-- Navegador de Diretórios -->
+        <div id="navegador-diretorios" class="modal" style="display: none;">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h3>Selecionar Diretório para Processamento</h3>
+                    <span class="close" onclick="fecharNavegadorDiretorios()">&times;</span>
+                </div>
+                <div class="modal-body">
+                    <div id="caminho-atual" style="background: #f8f9fa; padding: 0.5rem; border-radius: 4px; margin-bottom: 1rem; font-family: monospace;">
+                        /data
+                    </div>
+                    <div id="lista-diretorios" style="max-height: 300px; overflow-y: auto; border: 1px solid #e1e5e9; border-radius: 4px;">
+                        <div class="loading">Carregando estrutura de diretórios...</div>
+                    </div>
+                    <div style="margin-top: 1rem; text-align: right;">
+                        <button onclick="confirmarDiretorio()" style="background: #10b981; color: white; border: none; padding: 0.5rem 1rem; border-radius: 4px;">
+                            Selecionar este Diretório
+                        </button>
+                    </div>
+                </div>
             </div>
         </div>
         
@@ -394,6 +420,7 @@
             <button class="tab-button" onclick="mostrarAba('criticidade')">Classificação por Criticidade</button>
             <button class="tab-button" onclick="mostrarAba('prioridades')">Prioridade de Busca</button>
             <button class="tab-button" onclick="mostrarAba('regex')">Padrões Regex</button>
+            <button class="tab-button" onclick="mostrarAba('incidentes')">Cadastro de Incidentes</button>
             <button class="tab-button" onclick="mostrarAba('ia-avancada')">IA Avançada</button>
             <button class="tab-button" onclick="mostrarAba('ai-monitor')">Monitor de IA</button>
         </div>
@@ -692,6 +719,110 @@
                                 <li>Flexibilidade para ajustes dinâmicos</li>
                             </ul>
                         </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Aba Cadastro de Incidentes -->
+        <div id="aba-incidentes" class="tab-content">
+            <div class="data-table">
+                <div class="table-header">
+                    <h3>Cadastro de Incidentes LGPD</h3>
+                    <span>Registro e controle de incidentes de segurança da informação</span>
+                </div>
+                
+                <!-- Formulário de Cadastro -->
+                <div style="background: white; padding: 1.5rem; border-radius: 8px; border: 1px solid #e1e5e9; margin-bottom: 2rem;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+                        <h4 style="margin: 0;">Registrar Novo Incidente</h4>
+                        <button onclick="mostrarFormIncidente()" id="btn-novo-incidente" style="background: #3b82f6; color: white; border: none; padding: 0.5rem 1rem; border-radius: 6px; cursor: pointer;">
+                            + Novo Incidente
+                        </button>
+                    </div>
+                    
+                    <div id="form-incidente" style="display: none;">
+                        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1rem; margin-bottom: 1rem;">
+                            <div>
+                                <label style="display: block; margin-bottom: 0.5rem; font-weight: 500;">Nome da Empresa:</label>
+                                <input type="text" id="incidente-empresa" placeholder="Nome da empresa afetada" style="width: 100%; padding: 0.5rem; border: 1px solid #d1d5db; border-radius: 4px;">
+                            </div>
+                            <div>
+                                <label style="display: block; margin-bottom: 0.5rem; font-weight: 500;">Data do Incidente:</label>
+                                <input type="date" id="incidente-data" style="width: 100%; padding: 0.5rem; border: 1px solid #d1d5db; border-radius: 4px;">
+                            </div>
+                            <div>
+                                <label style="display: block; margin-bottom: 0.5rem; font-weight: 500;">Tipo de Incidente:</label>
+                                <select id="incidente-tipo" style="width: 100%; padding: 0.5rem; border: 1px solid #d1d5db; border-radius: 4px;">
+                                    <option value="">Selecione o tipo</option>
+                                    <option value="Vazamento de Dados">Vazamento de Dados</option>
+                                    <option value="Acesso Não Autorizado">Acesso Não Autorizado</option>
+                                    <option value="Perda de Dados">Perda de Dados</option>
+                                    <option value="Falha de Segurança">Falha de Segurança</option>
+                                    <option value="Violação de Consentimento">Violação de Consentimento</option>
+                                    <option value="Tratamento Inadequado">Tratamento Inadequado</option>
+                                    <option value="Phishing/Malware">Phishing/Malware</option>
+                                    <option value="Erro Humano">Erro Humano</option>
+                                    <option value="Outro">Outro</option>
+                                </select>
+                            </div>
+                        </div>
+                        
+                        <div style="margin-bottom: 1rem;">
+                            <label style="display: block; margin-bottom: 0.5rem; font-weight: 500;">Descrição do Incidente:</label>
+                            <textarea id="incidente-descricao" placeholder="Descreva detalhadamente o incidente, incluindo dados afetados, pessoas envolvidas e impacto..." 
+                                style="width: 100%; min-height: 100px; padding: 0.5rem; border: 1px solid #d1d5db; border-radius: 4px; resize: vertical;"></textarea>
+                        </div>
+                        
+                        <div style="display: flex; gap: 1rem; justify-content: flex-end;">
+                            <button onclick="cancelarFormIncidente()" style="background: #6b7280; color: white; border: none; padding: 0.5rem 1rem; border-radius: 6px; cursor: pointer;">
+                                Cancelar
+                            </button>
+                            <button onclick="salvarIncidente()" style="background: #10b981; color: white; border: none; padding: 0.5rem 1rem; border-radius: 6px; cursor: pointer;">
+                                Salvar Incidente
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Lista de Incidentes -->
+                <div style="background: white; padding: 1.5rem; border-radius: 8px; border: 1px solid #e1e5e9;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+                        <h4 style="margin: 0;">Histórico de Incidentes</h4>
+                        <div style="display: flex; gap: 1rem;">
+                            <select id="filtro-tipo-incidente" style="padding: 0.25rem 0.5rem; border: 1px solid #d1d5db; border-radius: 4px; font-size: 0.875rem;">
+                                <option value="todos">Todos os tipos</option>
+                                <option value="Vazamento de Dados">Vazamento de Dados</option>
+                                <option value="Acesso Não Autorizado">Acesso Não Autorizado</option>
+                                <option value="Perda de Dados">Perda de Dados</option>
+                                <option value="Falha de Segurança">Falha de Segurança</option>
+                                <option value="Outro">Outros</option>
+                            </select>
+                            <button onclick="carregarIncidentes()" style="background: #6b7280; color: white; border: none; padding: 0.25rem 0.5rem; border-radius: 4px; font-size: 0.875rem;">
+                                Atualizar
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div style="overflow-x: auto;">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Empresa</th>
+                                    <th>Data</th>
+                                    <th>Tipo</th>
+                                    <th>Descrição</th>
+                                    <th>Status</th>
+                                    <th>Ações</th>
+                                </tr>
+                            </thead>
+                            <tbody id="incidentes-table">
+                                <tr>
+                                    <td colspan="7" class="loading">Carregando incidentes...</td>
+                                </tr>
+                            </tbody>
+                        </table>
                     </div>
                 </div>
             </div>

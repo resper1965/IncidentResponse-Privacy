@@ -7,14 +7,25 @@ Inclui capacidade de OCR para PDFs escaneados
 
 import os
 import re
+import json
+import xml.etree.ElementTree as ET
+import zipfile
+import yaml
 from pathlib import Path
 import pandas as pd
 import pdfplumber
+import fitz  # PyMuPDF
 from docx import Document
+from pptx import Presentation
 import extract_msg
+import eml_parser
 import pytesseract
 from PIL import Image
+from bs4 import BeautifulSoup
+from striprtf.striprtf import rtf_to_text
 import io
+import email
+from email import policy
 
 def extrair_texto(caminho_arquivo):
     """
@@ -32,18 +43,54 @@ def extrair_texto(caminho_arquivo):
         
         print(f"  📖 Lendo arquivo: {arquivo_path.name}")
         
+        # Documentos de texto
         if extensao == '.txt':
             return extrair_texto_txt(caminho_arquivo)
+        elif extensao == '.md':
+            return extrair_texto_txt(caminho_arquivo)  # Markdown como texto simples
+        elif extensao == '.log':
+            return extrair_texto_txt(caminho_arquivo)  # Logs como texto simples
+        
+        # Documentos PDF
         elif extensao == '.pdf':
             return extrair_texto_pdf(caminho_arquivo)
+        
+        # Documentos Office
         elif extensao == '.docx':
             return extrair_texto_docx(caminho_arquivo)
         elif extensao == '.xlsx':
             return extrair_texto_xlsx(caminho_arquivo)
+        elif extensao == '.pptx':
+            return extrair_texto_pptx(caminho_arquivo)
         elif extensao == '.csv':
             return extrair_texto_csv(caminho_arquivo)
+        
+        # E-mails
         elif extensao == '.msg':
             return extrair_texto_msg(caminho_arquivo)
+        elif extensao == '.eml':
+            return extrair_texto_eml(caminho_arquivo)
+        
+        # Imagens com OCR
+        elif extensao in ['.jpg', '.jpeg', '.png']:
+            return extrair_texto_imagem(caminho_arquivo)
+        
+        # Arquivos estruturados
+        elif extensao == '.xml':
+            return extrair_texto_xml(caminho_arquivo)
+        elif extensao == '.json':
+            return extrair_texto_json(caminho_arquivo)
+        elif extensao in ['.yaml', '.yml']:
+            return extrair_texto_yaml(caminho_arquivo)
+        elif extensao == '.html':
+            return extrair_texto_html(caminho_arquivo)
+        elif extensao == '.rtf':
+            return extrair_texto_rtf(caminho_arquivo)
+        
+        # Arquivos compactados
+        elif extensao == '.zip':
+            return extrair_texto_zip(caminho_arquivo)
+        
         else:
             print(f"  ⚠️  Formato não suportado: {extensao}")
             return ""
@@ -259,6 +306,289 @@ def extrair_texto_msg(caminho_arquivo):
         
     except Exception as e:
         print(f"    ❌ Erro ao extrair texto do MSG: {str(e)}")
+        return ""
+
+def extrair_texto_pptx(caminho_arquivo):
+    """
+    Extrai texto de apresentações PowerPoint (.pptx)
+    """
+    try:
+        prs = Presentation(caminho_arquivo)
+        texto = ""
+        
+        for i, slide in enumerate(prs.slides, 1):
+            texto += f"\n--- Slide {i} ---\n"
+            
+            for shape in slide.shapes:
+                if hasattr(shape, "text") and shape.text:
+                    texto += shape.text + "\n"
+                    
+                # Verificar tabelas
+                if hasattr(shape, "table"):
+                    for row in shape.table.rows:
+                        row_text = []
+                        for cell in row.cells:
+                            if cell.text:
+                                row_text.append(cell.text.strip())
+                        if row_text:
+                            texto += " | ".join(row_text) + "\n"
+        
+        return texto
+        
+    except Exception as e:
+        print(f"    ❌ Erro ao extrair texto do PPTX: {str(e)}")
+        return ""
+
+def extrair_texto_eml(caminho_arquivo):
+    """
+    Extrai texto de e-mails padrão (.eml)
+    """
+    try:
+        with open(caminho_arquivo, 'rb') as f:
+            raw_email = f.read()
+        
+        # Usar eml_parser para análise completa
+        ep = eml_parser.EmlParser()
+        parsed_email = ep.decode_email_bytes(raw_email)
+        
+        texto = ""
+        
+        # Cabeçalhos básicos
+        if 'header' in parsed_email:
+            header = parsed_email['header']
+            if 'from' in header:
+                texto += f"De: {header['from']}\n"
+            if 'to' in header:
+                texto += f"Para: {header['to']}\n"
+            if 'subject' in header:
+                texto += f"Assunto: {header['subject']}\n"
+            if 'date' in header:
+                texto += f"Data: {header['date']}\n"
+        
+        texto += "\n--- Corpo do E-mail ---\n"
+        
+        # Corpo do e-mail
+        if 'body' in parsed_email:
+            for body_part in parsed_email['body']:
+                if 'content' in body_part:
+                    texto += body_part['content'] + "\n"
+        
+        # Anexos
+        if 'attachment' in parsed_email and parsed_email['attachment']:
+            texto += "\n--- Anexos ---\n"
+            for anexo in parsed_email['attachment']:
+                if 'filename' in anexo:
+                    texto += f"Anexo: {anexo['filename']}\n"
+        
+        return texto
+        
+    except Exception as e:
+        print(f"    ❌ Erro ao extrair texto do EML: {str(e)}")
+        # Fallback para parser básico do Python
+        try:
+            with open(caminho_arquivo, 'r', encoding='utf-8', errors='ignore') as f:
+                msg = email.message_from_file(f, policy=policy.default)
+            
+            texto = ""
+            texto += f"De: {msg.get('From', '')}\n"
+            texto += f"Para: {msg.get('To', '')}\n"
+            texto += f"Assunto: {msg.get('Subject', '')}\n"
+            texto += f"Data: {msg.get('Date', '')}\n\n"
+            
+            if msg.is_multipart():
+                for part in msg.walk():
+                    if part.get_content_type() == "text/plain":
+                        texto += part.get_content()
+            else:
+                texto += msg.get_content()
+            
+            return texto
+        except Exception:
+            return ""
+
+def extrair_texto_imagem(caminho_arquivo):
+    """
+    Extrai texto de imagens usando OCR (.jpg, .jpeg, .png)
+    """
+    try:
+        image = Image.open(caminho_arquivo)
+        texto = pytesseract.image_to_string(image, lang='por')
+        
+        if not texto.strip():
+            # Tentar com inglês se português falhar
+            texto = pytesseract.image_to_string(image, lang='eng')
+        
+        return texto
+        
+    except Exception as e:
+        print(f"    ❌ Erro ao extrair texto da imagem: {str(e)}")
+        return ""
+
+def extrair_texto_xml(caminho_arquivo):
+    """
+    Extrai texto de arquivos XML
+    """
+    try:
+        tree = ET.parse(caminho_arquivo)
+        root = tree.getroot()
+        
+        def extrair_texto_elemento(elemento):
+            texto = ""
+            if elemento.text:
+                texto += elemento.text.strip() + " "
+            for child in elemento:
+                texto += extrair_texto_elemento(child)
+            if elemento.tail:
+                texto += elemento.tail.strip() + " "
+            return texto
+        
+        return extrair_texto_elemento(root)
+        
+    except Exception as e:
+        print(f"    ❌ Erro ao extrair texto do XML: {str(e)}")
+        # Fallback para BeautifulSoup
+        try:
+            with open(caminho_arquivo, 'r', encoding='utf-8', errors='ignore') as f:
+                content = f.read()
+            soup = BeautifulSoup(content, 'xml')
+            return soup.get_text(separator=' ', strip=True)
+        except Exception:
+            return ""
+
+def extrair_texto_json(caminho_arquivo):
+    """
+    Extrai texto de arquivos JSON
+    """
+    try:
+        with open(caminho_arquivo, 'r', encoding='utf-8') as f:
+            data = json.load(f)
+        
+        def extrair_valores(obj, nivel=0):
+            texto = ""
+            if isinstance(obj, dict):
+                for key, value in obj.items():
+                    if isinstance(value, str):
+                        texto += f"{key}: {value}\n"
+                    else:
+                        texto += f"{key}:\n{extrair_valores(value, nivel+1)}"
+            elif isinstance(obj, list):
+                for i, item in enumerate(obj):
+                    texto += f"[{i}]: {extrair_valores(item, nivel+1)}"
+            elif isinstance(obj, str):
+                texto += obj + "\n"
+            elif obj is not None:
+                texto += str(obj) + "\n"
+            return texto
+        
+        return extrair_valores(data)
+        
+    except Exception as e:
+        print(f"    ❌ Erro ao extrair texto do JSON: {str(e)}")
+        return ""
+
+def extrair_texto_yaml(caminho_arquivo):
+    """
+    Extrai texto de arquivos YAML (.yaml, .yml)
+    """
+    try:
+        with open(caminho_arquivo, 'r', encoding='utf-8') as f:
+            data = yaml.safe_load(f)
+        
+        def extrair_valores_yaml(obj, nivel=0):
+            texto = ""
+            indent = "  " * nivel
+            if isinstance(obj, dict):
+                for key, value in obj.items():
+                    if isinstance(value, str):
+                        texto += f"{indent}{key}: {value}\n"
+                    else:
+                        texto += f"{indent}{key}:\n{extrair_valores_yaml(value, nivel+1)}"
+            elif isinstance(obj, list):
+                for item in obj:
+                    texto += f"{indent}- {extrair_valores_yaml(item, nivel+1)}"
+            elif isinstance(obj, str):
+                texto += obj + "\n"
+            elif obj is not None:
+                texto += str(obj) + "\n"
+            return texto
+        
+        return extrair_valores_yaml(data)
+        
+    except Exception as e:
+        print(f"    ❌ Erro ao extrair texto do YAML: {str(e)}")
+        return ""
+
+def extrair_texto_html(caminho_arquivo):
+    """
+    Extrai texto de arquivos HTML
+    """
+    try:
+        with open(caminho_arquivo, 'r', encoding='utf-8', errors='ignore') as f:
+            content = f.read()
+        
+        soup = BeautifulSoup(content, 'html.parser')
+        
+        # Remover scripts e estilos
+        for script in soup(["script", "style"]):
+            script.decompose()
+        
+        # Extrair texto
+        texto = soup.get_text(separator='\n', strip=True)
+        
+        # Limpar quebras de linha excessivas
+        texto = re.sub(r'\n\s*\n', '\n\n', texto)
+        
+        return texto
+        
+    except Exception as e:
+        print(f"    ❌ Erro ao extrair texto do HTML: {str(e)}")
+        return ""
+
+def extrair_texto_rtf(caminho_arquivo):
+    """
+    Extrai texto de arquivos RTF
+    """
+    try:
+        with open(caminho_arquivo, 'r', encoding='utf-8', errors='ignore') as f:
+            rtf_content = f.read()
+        
+        texto = rtf_to_text(rtf_content)
+        return texto
+        
+    except Exception as e:
+        print(f"    ❌ Erro ao extrair texto do RTF: {str(e)}")
+        return ""
+
+def extrair_texto_zip(caminho_arquivo):
+    """
+    Extrai texto de arquivos dentro de ZIPs
+    """
+    try:
+        texto = ""
+        
+        with zipfile.ZipFile(caminho_arquivo, 'r') as zip_ref:
+            # Listar arquivos no ZIP
+            texto += "--- Conteúdo do arquivo ZIP ---\n"
+            for file_info in zip_ref.filelist:
+                texto += f"Arquivo: {file_info.filename}\n"
+                
+                # Tentar extrair texto de alguns arquivos
+                if file_info.filename.lower().endswith(('.txt', '.csv', '.json', '.xml', '.html')):
+                    try:
+                        with zip_ref.open(file_info.filename) as f:
+                            content = f.read().decode('utf-8', errors='ignore')
+                            texto += f"\n--- Conteúdo de {file_info.filename} ---\n"
+                            texto += content[:1000]  # Limitar a 1000 caracteres por arquivo
+                            if len(content) > 1000:
+                                texto += "\n... (conteúdo truncado)\n"
+                            texto += "\n"
+                    except Exception:
+                        continue
+        
+        return texto
+        
+    except Exception as e:
+        print(f"    ❌ Erro ao extrair texto do ZIP: {str(e)}")
         return ""
 
 def limpar_texto(texto):
