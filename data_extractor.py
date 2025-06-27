@@ -12,16 +12,17 @@ from pathlib import Path
 # Modelo spaCy global
 nlp = None
 
-# Padrões regex para dados pessoais brasileiros
+# Padrões regex para dados pessoais brasileiros - Estrutura Inteligente
 REGEX_PATTERNS = {
-    'cpf': r'\b\d{3}\.?\d{3}\.?\d{3}-?\d{2}\b',
-    'rg': r'\b\d{1,2}\.?\d{3}\.?\d{3}-?\d{1}\b|\bRG\s*:?\s*\d{7,9}\b',
-    'email': r'\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b',
-    'telefone': r'\b(?:\+55\s?)?\(?[1-9]{2}\)?\s?9?\d{4}-?\d{4}\b',
-    'placa': r'\b[A-Z]{3}-?\d{4}\b|\b[A-Z]{3}\d[A-Z]\d{2}\b',
-    'cep': r'\b\d{5}-?\d{3}\b',
-    'ip': r'\b(?:[0-9]{1,3}\.){3}[0-9]{1,3}\b',
-    'data_nascimento': r'\b(?:0[1-9]|[12][0-9]|3[01])[\/\-](?:0[1-9]|1[012])[\/\-](?:19|20)\d{2}\b'
+    'nome_completo': r'\b([A-Z][a-z]+(?:\s+[A-Z][a-z]+){1,})\b',
+    'cpf': r'\b\d{3}[.\s-]?\d{3}[.\s-]?\d{3}[-\s]?\d{2}\b',
+    'rg': r'\b\d{1,2}[.\s-]?\d{3}[.\s-]?\d{3}[-\s]?[0-9Xx]\b',
+    'email': r'\b[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}\b',
+    'telefone': r'\b(\(?\d{2}\)?[\s-]?)?(9?\d{4})[\s-]?\d{4}\b',
+    'data_nascimento': r'\b(0?[1-9]|[12][0-9]|3[01])[/\-\.](0?[1-9]|1[0-2])[/\-\.](?:19|20)?\d{2}\b',
+    'placa_veiculo': r'\b([A-Z]{3}[-\s]?\d{4})\b',
+    'cep': r'\b\d{5}[-\s]?\d{3}\b',
+    'ip': r'\b(?:\d{1,3}\.){3}\d{1,3}\b'
 }
 
 # Palavras-chave para identificação de titulares

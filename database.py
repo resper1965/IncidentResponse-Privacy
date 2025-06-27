@@ -119,6 +119,30 @@ def inicializar_banco():
             ON dados_extraidos(titular)
         ''')
         
+        # Criar tabela de prioridade de busca
+        cursor.execute('''
+            CREATE TABLE IF NOT EXISTS prioridade_busca (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                prioridade INTEGER NOT NULL,
+                nome_empresa TEXT NOT NULL,
+                dominio_email TEXT NOT NULL,
+                ativa BOOLEAN DEFAULT TRUE,
+                data_criacao DATETIME DEFAULT CURRENT_TIMESTAMP
+            )
+        ''')
+        
+        # Criar tabela de padrões regex
+        cursor.execute('''
+            CREATE TABLE IF NOT EXISTS regex_patterns (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                nome_campo TEXT NOT NULL UNIQUE,
+                pattern_regex TEXT NOT NULL,
+                explicacao TEXT,
+                ativo BOOLEAN DEFAULT TRUE,
+                data_criacao DATETIME DEFAULT CURRENT_TIMESTAMP
+            )
+        ''')
+        
         conn.commit()
         conn.close()
         
@@ -769,6 +793,202 @@ def extrair_dominio_de_email(email):
         return ""
     except:
         return ""
+
+# === FUNÇÕES DE PRIORIDADE DE BUSCA ===
+
+def inserir_prioridade_busca(prioridade, nome_empresa, dominio_email):
+    """
+    Insere uma nova prioridade de busca
+    
+    Args:
+        prioridade (int): Nível de prioridade (1 = mais alta)
+        nome_empresa (str): Nome da empresa
+        dominio_email (str): Domínio do email da empresa
+        
+    Returns:
+        bool: True se inserido com sucesso
+    """
+    try:
+        conn = obter_conexao()
+        cursor = conn.cursor()
+        
+        cursor.execute('''
+            INSERT INTO prioridade_busca (prioridade, nome_empresa, dominio_email)
+            VALUES (?, ?, ?)
+        ''', (prioridade, nome_empresa, dominio_email))
+        
+        conn.commit()
+        conn.close()
+        return True
+    except Exception as e:
+        print(f"Erro ao inserir prioridade de busca: {e}")
+        return False
+
+def obter_prioridades_busca():
+    """
+    Obtém lista de prioridades de busca ordenada por prioridade
+    
+    Returns:
+        list: Lista de prioridades de busca
+    """
+    try:
+        conn = obter_conexao()
+        cursor = conn.cursor()
+        
+        cursor.execute('''
+            SELECT id, prioridade, nome_empresa, dominio_email, ativa, data_criacao
+            FROM prioridade_busca
+            WHERE ativa = TRUE
+            ORDER BY prioridade ASC
+        ''')
+        
+        prioridades = []
+        for row in cursor.fetchall():
+            prioridades.append({
+                'id': row[0],
+                'prioridade': row[1],
+                'nome_empresa': row[2],
+                'dominio_email': row[3],
+                'ativa': row[4],
+                'data_criacao': row[5]
+            })
+        
+        conn.close()
+        return prioridades
+    except Exception as e:
+        print(f"Erro ao obter prioridades de busca: {e}")
+        return []
+
+def remover_prioridade_busca(prioridade_id):
+    """
+    Remove uma prioridade de busca (marca como inativa)
+    
+    Args:
+        prioridade_id (int): ID da prioridade
+        
+    Returns:
+        bool: True se removida com sucesso
+    """
+    try:
+        conn = obter_conexao()
+        cursor = conn.cursor()
+        
+        cursor.execute('''
+            UPDATE prioridade_busca 
+            SET ativa = FALSE 
+            WHERE id = ?
+        ''', (prioridade_id,))
+        
+        conn.commit()
+        conn.close()
+        return True
+    except Exception as e:
+        print(f"Erro ao remover prioridade de busca: {e}")
+        return False
+
+def carregar_prioridades_padrao():
+    """
+    Carrega prioridades de busca padrão
+    """
+    prioridades_padrao = [
+        (1, "BRADESCO", "bradesco.com.br"),
+        (2, "PETROBRAS", "petrobras.com.br"),
+        (3, "ONS", "ons.org.br"),
+        (4, "EMBRAER", "embraer.com.br"),
+        (5, "REDE DOR", "rededorsaoluiz.com.br"),
+        (6, "GLOBO", "globo.com"),
+        (7, "ELETROBRAS", "eletrobras.com"),
+        (8, "CREFISA", "crefisa.com.br"),
+        (9, "EQUINIX", "equinix.com"),
+        (10, "COHESITY", "cohesity.com")
+    ]
+    
+    for prioridade, nome, dominio in prioridades_padrao:
+        inserir_prioridade_busca(prioridade, nome, dominio)
+
+# === FUNÇÕES DE PADRÕES REGEX ===
+
+def inserir_regex_pattern(nome_campo, pattern_regex, explicacao=""):
+    """
+    Insere um novo padrão regex
+    
+    Args:
+        nome_campo (str): Nome do campo
+        pattern_regex (str): Padrão regex
+        explicacao (str): Explicação do padrão
+        
+    Returns:
+        bool: True se inserido com sucesso
+    """
+    try:
+        conn = obter_conexao()
+        cursor = conn.cursor()
+        
+        cursor.execute('''
+            INSERT OR REPLACE INTO regex_patterns (nome_campo, pattern_regex, explicacao)
+            VALUES (?, ?, ?)
+        ''', (nome_campo, pattern_regex, explicacao))
+        
+        conn.commit()
+        conn.close()
+        return True
+    except Exception as e:
+        print(f"Erro ao inserir padrão regex: {e}")
+        return False
+
+def obter_regex_patterns():
+    """
+    Obtém lista de padrões regex ativos
+    
+    Returns:
+        list: Lista de padrões regex
+    """
+    try:
+        conn = obter_conexao()
+        cursor = conn.cursor()
+        
+        cursor.execute('''
+            SELECT id, nome_campo, pattern_regex, explicacao, ativo, data_criacao
+            FROM regex_patterns
+            WHERE ativo = TRUE
+            ORDER BY nome_campo ASC
+        ''')
+        
+        patterns = []
+        for row in cursor.fetchall():
+            patterns.append({
+                'id': row[0],
+                'nome_campo': row[1],
+                'pattern_regex': row[2],
+                'explicacao': row[3],
+                'ativo': row[4],
+                'data_criacao': row[5]
+            })
+        
+        conn.close()
+        return patterns
+    except Exception as e:
+        print(f"Erro ao obter padrões regex: {e}")
+        return []
+
+def carregar_regex_padrao():
+    """
+    Carrega padrões regex padrão baseados na estrutura inteligente
+    """
+    patterns_padrao = [
+        ("nome_completo", r"\b([A-Z][a-z]+(?:\s+[A-Z][a-z]+){1,})\b", "Nome composto, mínimo dois nomes"),
+        ("cpf", r"\b\d{3}[.\s-]?\d{3}[.\s-]?\d{3}[-\s]?\d{2}\b", "Variações com e sem máscara"),
+        ("rg", r"\b\d{1,2}[.\s-]?\d{3}[.\s-]?\d{3}[-\s]?[0-9Xx]\b", "Variações com e sem máscara, com dígito X"),
+        ("email", r"\b[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}\b", "Formato internacional de e-mail"),
+        ("telefone", r"\b(\(?\d{2}\)?[\s-]?)?(9?\d{4})[\s-]?\d{4}\b", "Formatos com ou sem DDD"),
+        ("data_nascimento", r"\b(0?[1-9]|[12][0-9]|3[01])[/\-\.](0?[1-9]|1[0-2])[/\-\.](?:19|20)?\d{2}\b", "Formato brasileiro de data"),
+        ("placa_veiculo", r"\b([A-Z]{3}[-\s]?\d{4})\b", "Padrão antigo de placa brasileira"),
+        ("cep", r"\b\d{5}[-\s]?\d{3}\b", "Variações com e sem hífen"),
+        ("ip", r"\b(?:\d{1,3}\.){3}\d{1,3}\b", "IPv4")
+    ]
+    
+    for nome, pattern, explicacao in patterns_padrao:
+        inserir_regex_pattern(nome, pattern, explicacao)
 
 # Função de teste para o módulo
 if __name__ == "__main__":
