@@ -395,6 +395,7 @@
             <button class="tab-button" onclick="mostrarAba('prioridades')">Prioridade de Busca</button>
             <button class="tab-button" onclick="mostrarAba('regex')">Padrões Regex</button>
             <button class="tab-button" onclick="mostrarAba('ia-avancada')">IA Avançada</button>
+            <button class="tab-button" onclick="mostrarAba('ai-monitor')">Monitor de IA</button>
         </div>
         
         <!-- Aba Resultados LGPD -->
@@ -679,8 +680,8 @@
                             
                             <p><strong>2. Ordem de Processamento:</strong></p>
                             <ul style="margin: 0.5rem 0 1rem 1.5rem;">
-                                <li>Prioridade 1: BRADESCO (@bradesco.com.br) - Primeiro</li>
-                                <li>Prioridade 2-10: Outras empresas conforme configuração</li>
+                                <li>Prioridade 1-10: Empresas conforme tabela de prioridades</li>
+                                <li>IA ajusta prioridades dinamicamente baseado em sensibilidade</li>
                                 <li>Não classificados: Processados por último</li>
                             </ul>
                             
@@ -691,6 +692,125 @@
                                 <li>Flexibilidade para ajustes dinâmicos</li>
                             </ul>
                         </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Aba Monitor de IA -->
+        <div id="aba-ai-monitor" class="tab-content">
+            <div class="data-table">
+                <div class="table-header">
+                    <h3>Monitor de IA em Tempo Real - PostgreSQL</h3>
+                    <span>Sistema híbrido de priorização com análise semântica</span>
+                </div>
+                
+                <!-- Status do Sistema -->
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 1.5rem; margin-bottom: 2rem;">
+                    <div class="metric-card">
+                        <div class="metric-label">Status do Sistema</div>
+                        <div id="system-status" style="font-size: 1rem; margin-top: 0.5rem;">
+                            <div style="display: flex; gap: 1rem; align-items: center;">
+                                <span id="postgres-status">🔄 Verificando PostgreSQL...</span>
+                                <span id="ai-status">🔄 Verificando IA...</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="metric-card">
+                        <div class="metric-label">Métricas da Fila</div>
+                        <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem; margin-top: 0.5rem;">
+                            <div style="text-align: center;">
+                                <div id="queue-pending" style="font-size: 1.5rem; font-weight: 700; color: #f59e0b;">0</div>
+                                <div style="font-size: 0.75rem; color: #6b7280;">Pendentes</div>
+                            </div>
+                            <div style="text-align: center;">
+                                <div id="queue-processing" style="font-size: 1.5rem; font-weight: 700; color: #3b82f6;">0</div>
+                                <div style="font-size: 0.75rem; color: #6b7280;">Processando</div>
+                            </div>
+                            <div style="text-align: center;">
+                                <div id="queue-completed" style="font-size: 1.5rem; font-weight: 700; color: #10b981;">0</div>
+                                <div style="font-size: 0.75rem; color: #6b7280;">Completos</div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="metric-card">
+                        <div class="metric-label">Escalações de IA</div>
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 0.5rem;">
+                            <div>
+                                <div id="ai-escalations" style="font-size: 1.5rem; font-weight: 700; color: #ef4444;">0</div>
+                                <div style="font-size: 0.75rem; color: #6b7280;">Prioridades ajustadas</div>
+                            </div>
+                            <div style="font-size: 2rem;">⚡</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Tabela de Prioridades de Busca PostgreSQL -->
+                <div style="background: white; padding: 1.5rem; border-radius: 8px; border: 1px solid #e1e5e9; margin-bottom: 2rem;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+                        <h4 style="margin: 0;">Tabela de Prioridades de Busca (PostgreSQL)</h4>
+                        <button onclick="carregarPrioridadesPostgreSQL()" style="padding: 0.5rem 1rem; background: #3b82f6; color: white; border: none; border-radius: 6px; cursor: pointer;">
+                            🔄 Atualizar
+                        </button>
+                    </div>
+                    <div style="overflow-x: auto;">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Prioridade</th>
+                                    <th>Nome do Cliente</th>
+                                    <th>Domínio de Email</th>
+                                    <th>IA Habilitada</th>
+                                    <th>Limite de Confiança</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody id="prioridades-pg-table">
+                                <tr>
+                                    <td colspan="6" class="loading">Carregando prioridades do PostgreSQL...</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                
+                <!-- Fila de Processamento com IA -->
+                <div style="background: white; padding: 1.5rem; border-radius: 8px; border: 1px solid #e1e5e9; margin-bottom: 2rem;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+                        <h4 style="margin: 0;">Fila de Processamento com IA</h4>
+                        <button onclick="carregarFilaProcessamento()" style="padding: 0.5rem 1rem; background: #10b981; color: white; border: none; border-radius: 6px; cursor: pointer;">
+                            🔄 Atualizar Fila
+                        </button>
+                    </div>
+                    <div style="overflow-x: auto;">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Arquivo</th>
+                                    <th>Cliente Identificado</th>
+                                    <th>Prioridade Estática</th>
+                                    <th>Prioridade IA</th>
+                                    <th>Confiança IA</th>
+                                    <th>Fonte da Decisão</th>
+                                    <th>Motivo da Escalação</th>
+                                </tr>
+                            </thead>
+                            <tbody id="fila-processamento-table">
+                                <tr>
+                                    <td colspan="7" class="loading">Carregando fila de processamento...</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                
+                <!-- Principais Clientes por Volume -->
+                <div style="background: white; padding: 1.5rem; border-radius: 8px; border: 1px solid #e1e5e9;">
+                    <h4 style="margin: 0 0 1rem 0;">Top Clientes por Volume de Documentos</h4>
+                    <div id="top-clients-chart" style="min-height: 200px; background: #f8f9fa; border-radius: 6px; display: flex; align-items: center; justify-content: center; color: #6b7280;">
+                        Carregando gráfico de clientes...
                     </div>
                 </div>
             </div>
@@ -951,6 +1071,11 @@
                 carregarPrioridades();
             } else if (nomeAba === 'regex') {
                 carregarRegexPatterns();
+            } else if (nomeAba === 'ai-monitor') {
+                carregarStatusSistema();
+                carregarMetricasIA();
+                carregarPrioridadesPostgreSQL();
+                carregarFilaProcessamento();
             }
         }
         
@@ -1075,6 +1200,152 @@
             .catch(error => {
                 mostrarMensagem('error', 'Erro ao carregar prioridades padrão: ' + error.message);
             });
+        }
+        
+        // === FUNÇÕES DO MONITOR DE IA ===
+        
+        function carregarStatusSistema() {
+            fetch('/api/system-status')
+                .then(response => response.json())
+                .then(data => {
+                    const postgresStatus = document.getElementById('postgres-status');
+                    const aiStatus = document.getElementById('ai-status');
+                    
+                    if (data.postgresql_enabled) {
+                        postgresStatus.innerHTML = '✅ PostgreSQL Ativo';
+                        postgresStatus.style.color = '#10b981';
+                    } else {
+                        postgresStatus.innerHTML = '❌ PostgreSQL Inativo';
+                        postgresStatus.style.color = '#ef4444';
+                    }
+                    
+                    if (data.ai_system_enabled) {
+                        aiStatus.innerHTML = '🤖 IA Ativa';
+                        aiStatus.style.color = '#10b981';
+                    } else {
+                        aiStatus.innerHTML = '❌ IA Inativa';
+                        aiStatus.style.color = '#ef4444';
+                    }
+                })
+                .catch(error => {
+                    console.error('Erro ao carregar status:', error);
+                    document.getElementById('postgres-status').innerHTML = '❌ Erro na conexão';
+                    document.getElementById('ai-status').innerHTML = '❌ Erro na conexão';
+                });
+        }
+        
+        function carregarMetricasIA() {
+            fetch('/api/ai-metrics')
+                .then(response => response.json())
+                .then(data => {
+                    if (data.status === 'disabled') {
+                        document.getElementById('queue-pending').textContent = '-';
+                        document.getElementById('queue-processing').textContent = '-';
+                        document.getElementById('queue-completed').textContent = '-';
+                        document.getElementById('ai-escalations').textContent = '-';
+                        return;
+                    }
+                    
+                    if (data.queue_stats) {
+                        document.getElementById('queue-pending').textContent = data.queue_stats.pending || 0;
+                        document.getElementById('queue-processing').textContent = data.queue_stats.processing || 0;
+                        document.getElementById('queue-completed').textContent = data.queue_stats.completed || 0;
+                    }
+                    
+                    document.getElementById('ai-escalations').textContent = data.ai_escalations || 0;
+                    
+                    // Atualizar gráfico de clientes
+                    if (data.top_clients && data.top_clients.length > 0) {
+                        const chart = document.getElementById('top-clients-chart');
+                        chart.innerHTML = data.top_clients.map(client => `
+                            <div style="display: flex; justify-content: space-between; padding: 0.5rem; border-bottom: 1px solid #e1e5e9;">
+                                <span>${client.client}</span>
+                                <span style="font-weight: 600;">${client.documents} docs</span>
+                            </div>
+                        `).join('');
+                    }
+                })
+                .catch(error => {
+                    console.error('Erro ao carregar métricas IA:', error);
+                });
+        }
+        
+        function carregarPrioridadesPostgreSQL() {
+            fetch('/api/search-priorities-pg')
+                .then(response => response.json())
+                .then(data => {
+                    const tbody = document.getElementById('prioridades-pg-table');
+                    
+                    if (data.length === 0) {
+                        tbody.innerHTML = '<tr><td colspan="6" class="loading">Nenhuma prioridade encontrada no PostgreSQL</td></tr>';
+                        return;
+                    }
+                    
+                    tbody.innerHTML = data.map(item => `
+                        <tr>
+                            <td><strong>${item.priority}</strong></td>
+                            <td>${item.client_name}</td>
+                            <td>${item.email_domain}</td>
+                            <td>
+                                <span style="color: ${item.ai_escalation_enabled ? '#10b981' : '#6b7280'};">
+                                    ${item.ai_escalation_enabled ? '✅ Sim' : '❌ Não'}
+                                </span>
+                            </td>
+                            <td>${(item.confidence_threshold * 100).toFixed(0)}%</td>
+                            <td>
+                                <span style="padding: 0.25rem 0.5rem; border-radius: 4px; font-size: 0.75rem; background: #dcfce7; color: #166534;">
+                                    Ativo
+                                </span>
+                            </td>
+                        </tr>
+                    `).join('');
+                })
+                .catch(error => {
+                    console.error('Erro ao carregar prioridades PostgreSQL:', error);
+                    document.getElementById('prioridades-pg-table').innerHTML = 
+                        '<tr><td colspan="6" class="loading">Erro ao carregar dados do PostgreSQL</td></tr>';
+                });
+        }
+        
+        function carregarFilaProcessamento() {
+            fetch('/api/processing-queue')
+                .then(response => response.json())
+                .then(data => {
+                    const tbody = document.getElementById('fila-processamento-table');
+                    
+                    if (data.length === 0) {
+                        tbody.innerHTML = '<tr><td colspan="7" class="loading">Nenhum documento na fila</td></tr>';
+                        return;
+                    }
+                    
+                    tbody.innerHTML = data.map(item => `
+                        <tr>
+                            <td>${item.file_name}</td>
+                            <td>${item.identified_client || 'Não identificado'}</td>
+                            <td>
+                                <span style="padding: 0.25rem 0.5rem; border-radius: 4px; font-size: 0.75rem; background: #dbeafe; color: #1e40af;">
+                                    ${item.static_priority || '-'}
+                                </span>
+                            </td>
+                            <td>
+                                <span style="padding: 0.25rem 0.5rem; border-radius: 4px; font-size: 0.75rem; background: ${item.ai_adjusted_priority < item.static_priority ? '#fef3c7' : '#dcfce7'}; color: ${item.ai_adjusted_priority < item.static_priority ? '#92400e' : '#166534'};">
+                                    ${item.ai_adjusted_priority || '-'}
+                                    ${item.ai_adjusted_priority < item.static_priority ? ' ⚡' : ''}
+                                </span>
+                            </td>
+                            <td>${item.ai_confidence_score ? (item.ai_confidence_score * 100).toFixed(1) + '%' : '-'}</td>
+                            <td>${item.priority_source || '-'}</td>
+                            <td style="max-width: 200px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;" title="${item.escalation_reason || ''}">
+                                ${item.escalation_reason || '-'}
+                            </td>
+                        </tr>
+                    `).join('');
+                })
+                .catch(error => {
+                    console.error('Erro ao carregar fila de processamento:', error);
+                    document.getElementById('fila-processamento-table').innerHTML = 
+                        '<tr><td colspan="7" class="loading">Erro ao carregar fila de processamento</td></tr>';
+                });
         }
         
         // === FUNÇÕES DE REGEX PATTERNS ===
