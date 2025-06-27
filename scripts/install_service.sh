@@ -157,7 +157,15 @@ sudo -u privacy /opt/privacy/venv/bin/pip install \
     python-dotenv==1.0.0 \
     openai==1.3.7 \
     langchain==0.0.348 \
-    langchain-openai==0.0.2
+    langchain-openai==0.0.2 \
+    pymupdf==1.23.8 \
+    python-pptx==0.6.23 \
+    beautifulsoup4==4.12.2 \
+    lxml==4.9.3 \
+    striprtf==0.0.26 \
+    eml-parser==1.17.7 \
+    langchain-community==0.0.6 \
+    langchain-text-splitters==0.0.1
 
 echo "✅ Dependências Python instaladas"
 
