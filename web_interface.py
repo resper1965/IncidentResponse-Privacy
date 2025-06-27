@@ -677,6 +677,51 @@ def gerar_resumo_empresas(dados):
     
     return empresas
 
+@app.route('/api/test-ai', methods=['POST'])
+def test_ai_integration():
+    """Endpoint para testar integração OpenAI"""
+    try:
+        from openai import OpenAI
+        import os
+        
+        data = request.get_json()
+        texto = data.get('texto', 'Teste de funcionalidade OpenAI')
+        
+        client = OpenAI(api_key=os.environ.get('OPENAI_API_KEY'))
+        
+        response = client.chat.completions.create(
+            model="gpt-3.5-turbo-1106",
+            messages=[
+                {
+                    "role": "system", 
+                    "content": "Você é um especialista em LGPD. Analise o texto e identifique dados pessoais, classifique a sensibilidade e responda em JSON."
+                },
+                {
+                    "role": "user", 
+                    "content": f"Analise este texto: {texto}"
+                }
+            ],
+            response_format={"type": "json_object"},
+            max_tokens=500
+        )
+        
+        result = {
+            'status': 'success',
+            'openai_active': True,
+            'model_used': 'gpt-3.5-turbo-1106',
+            'analysis': response.choices[0].message.content,
+            'tokens_used': response.usage.total_tokens if response.usage else 0
+        }
+        
+        return jsonify(result)
+        
+    except Exception as e:
+        return jsonify({
+            'status': 'error',
+            'openai_active': False,
+            'error': str(e)
+        }), 500
+
 if __name__ == '__main__':
     # Inicializar sistemas
     initialize_systems()
