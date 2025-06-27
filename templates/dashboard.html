@@ -43,17 +43,16 @@
         }
         
         .footer {
-            background: white;
-            border-top: 1px solid #e1e5e9;
-            padding: 1rem 2rem;
+            padding: 0.5rem 2rem;
             text-align: center;
-            margin-top: 2rem;
+            margin-top: 3rem;
         }
         
         .footer p {
-            color: #6b7280;
-            font-size: 0.75rem;
-            font-weight: 400;
+            color: #9ca3af;
+            font-size: 0.6rem;
+            font-weight: 300;
+            opacity: 0.7;
         }
         
         .footer .ness-brand {
@@ -158,6 +157,9 @@
             border-radius: 8px;
             border: 1px solid #e1e5e9;
             overflow: hidden;
+            height: 600px;
+            display: flex;
+            flex-direction: column;
         }
         
         .table-header {
@@ -167,6 +169,7 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
+            flex-shrink: 0;
         }
         
         .table-header h3 {
@@ -174,9 +177,22 @@
             font-weight: 600;
         }
         
+        .table-container {
+            flex: 1;
+            overflow-y: auto;
+            max-height: calc(600px - 80px);
+        }
+        
         table {
             width: 100%;
             border-collapse: collapse;
+        }
+        
+        thead {
+            position: sticky;
+            top: 0;
+            background: #f8f9fa;
+            z-index: 10;
         }
         
         th, td {
@@ -558,28 +574,28 @@
                     <h3>Resultados da Análise LGPD</h3>
                     <span id="contador-resultados">-</span>
                 </div>
-            <div style="overflow-x: auto;">
-                <table>
-                    <thead>
-                        <tr>
-                            <th>Domínio</th>
-                            <th>Empresa</th>
-                            <th>Tipo de Dado</th>
-                            <th>Valor Encontrado</th>
-                            <th>Titular</th>
-                            <th>Prioridade</th>
-                            <th>Arquivo</th>
-                            <th>Data</th>
-                        </tr>
-                    </thead>
-                    <tbody id="dados-table">
-                        <tr>
-                            <td colspan="8" class="loading">Carregando dados...</td>
-                        </tr>
-                    </tbody>
-                </table>
+                <div class="table-container">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Domínio</th>
+                                <th>Empresa</th>
+                                <th>Tipo de Dado</th>
+                                <th>Valor Encontrado</th>
+                                <th>Titular</th>
+                                <th>Prioridade</th>
+                                <th>Arquivo</th>
+                                <th>Data</th>
+                            </tr>
+                        </thead>
+                        <tbody id="dados-table">
+                            <tr>
+                                <td colspan="8" class="loading">Carregando dados...</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
             </div>
-        </div>
         </div>
         
         <!-- Aba Classificação por Criticidade -->

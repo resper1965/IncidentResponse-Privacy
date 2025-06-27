@@ -1,8 +1,8 @@
-# LGPD Compliance Dashboard
+# n.crisisops - Módulo de Privacidade
 
 ## Overview
 
-This is a Python-based LGPD (Lei Geral de Proteção de Dados) compliance system that automatically scans documents for personal data, extracts and classifies the information, and provides a dashboard for analysis. The system uses regex patterns, spaCy NLP for named entity recognition, and provides OCR capabilities for scanned documents.
+This is "n.crisisops - gestão de resposta a incidente" (privacy module), a comprehensive LGPD (Lei Geral de Proteção de Dados) compliance system that automatically scans documents for personal data, extracts and classifies information using AI, and provides an incident response dashboard. The system features AI-powered processing with GPT-3.5-turbo-1106, PostgreSQL enterprise database, and supports 18+ file formats with complete directory tree processing.
 
 ## System Architecture
 
@@ -128,6 +128,7 @@ Preferred communication style: Simple, everyday language.
 - **June 27, 2025**: Deployed comprehensive AI monitoring dashboard with real-time metrics
 - **June 27, 2025**: Integrated PostgreSQL-based processing queue with AI-adjusted priorities
 - **June 27, 2025**: Added real-time system status monitoring and processing analytics
+- **June 27, 2025**: **REBRANDED to n.crisisops** - Complete system rebrand with Montserrat font, #00ade08 accent color, monochromatic line icons, and discreet "powered by ness." footer
 
 ## Priority Company Classification
 
