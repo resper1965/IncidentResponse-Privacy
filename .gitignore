@@ -1,5 +1,8 @@
 # LGPD Compliance Dashboard - Git Ignore Configuration
-
+# Ignorar todos os caches possíveis do pip e Python
+.cache/
+pip-wheel-metadata/
+*.whl
 # Environment Configuration
 .env
 .env.local
