@@ -501,6 +501,34 @@ def main():
         
         st.markdown("</div>", unsafe_allow_html=True)
         
+        # Seção de empresas prioritárias
+        st.markdown('<div class="sidebar-section">', unsafe_allow_html=True)
+        st.markdown('<div class="sidebar-title">🏢 Empresas Prioritárias</div>', unsafe_allow_html=True)
+        
+        # Carregar empresas padrão se necessário
+        if st.button("📋 Carregar Lista Padrão", use_container_width=True):
+            carregar_empresas_padrao()
+            st.success("Lista padrão carregada!")
+            st.rerun()
+        
+        # Adicionar nova empresa
+        with st.expander("➕ Adicionar Empresa"):
+            nome_empresa = st.text_input("Nome da Empresa:", key="nova_empresa")
+            email_contato = st.text_input("Email de Contato:", key="novo_email")
+            observacoes = st.text_area("Observações:", key="novas_obs", height=80)
+            
+            if st.button("Adicionar", key="btn_adicionar"):
+                if nome_empresa:
+                    if inserir_empresa_prioritaria(nome_empresa, observacoes, email_contato):
+                        st.success("Empresa adicionada!")
+                        st.rerun()
+                    else:
+                        st.error("Erro ao adicionar empresa")
+                else:
+                    st.error("Nome da empresa é obrigatório")
+        
+        st.markdown("</div>", unsafe_allow_html=True)
+        
         # Ferramentas administrativas
         st.markdown('<div class="sidebar-section">', unsafe_allow_html=True)
         st.markdown('<div class="sidebar-title">🛠️ Ferramentas Admin</div>', unsafe_allow_html=True)
@@ -754,6 +782,70 @@ def main():
             st.warning("⚠️ Nenhum registro encontrado com os filtros aplicados.")
     else:
         st.info("📋 Nenhum dado encontrado na base.")
+    
+    st.markdown("</div>", unsafe_allow_html=True)
+    
+    # Gestão de empresas prioritárias
+    st.markdown('<div class="section-container fade-in">', unsafe_allow_html=True)
+    st.markdown('<div class="section-header"><span style="font-size: 1.5rem;">🏢</span><h2 class="section-title">Gestão de Empresas Prioritárias</h2></div>', unsafe_allow_html=True)
+    
+    # Obter empresas prioritárias
+    empresas_prioritarias = obter_empresas_prioritarias()
+    
+    if empresas_prioritarias:
+        # Criar DataFrame das empresas
+        df_empresas = pd.DataFrame(empresas_prioritarias)
+        
+        # Mostrar tabela com opções de edição
+        st.subheader("📋 Lista de Empresas Prioritárias")
+        
+        # Exibir dados da empresa em formato editável
+        for i, empresa in enumerate(empresas_prioritarias):
+            with st.expander(f"🏢 {empresa['nome_empresa']}", expanded=False):
+                col1, col2, col3 = st.columns([2, 2, 1])
+                
+                with col1:
+                    st.write(f"**Nome:** {empresa['nome_empresa']}")
+                    st.write(f"**Email:** {empresa['email_contato']}")
+                
+                with col2:
+                    st.write(f"**Observações:** {empresa['observacoes'] or 'Nenhuma'}")
+                    st.write(f"**Criado em:** {empresa['data_criacao'][:10]}")
+                
+                with col3:
+                    if st.button("🗑️ Remover", key=f"remove_{empresa['id']}"):
+                        if remover_empresa_prioritaria(empresa['id']):
+                            st.success("Empresa removida!")
+                            st.rerun()
+                        else:
+                            st.error("Erro ao remover")
+        
+        # Estatísticas das empresas
+        st.subheader("📊 Estatísticas")
+        col1, col2, col3 = st.columns(3)
+        
+        with col1:
+            st.metric("Total de Empresas", len(empresas_prioritarias))
+        
+        with col2:
+            empresas_com_email = len([e for e in empresas_prioritarias if e['email_contato']])
+            st.metric("Com Email Configurado", empresas_com_email)
+        
+        with col3:
+            empresas_com_obs = len([e for e in empresas_prioritarias if e['observacoes']])
+            st.metric("Com Observações", empresas_com_obs)
+        
+        # Download da lista
+        csv_empresas = pd.DataFrame(empresas_prioritarias).to_csv(index=False)
+        st.download_button(
+            label="💾 Download Lista de Empresas",
+            data=csv_empresas,
+            file_name=f"empresas_prioritarias_{datetime.now().strftime('%Y%m%d_%H%M%S')}.csv",
+            mime="text/csv"
+        )
+        
+    else:
+        st.info("📋 Nenhuma empresa prioritária cadastrada. Use o botão 'Carregar Lista Padrão' na barra lateral.")
     
     st.markdown("</div>", unsafe_allow_html=True)
     

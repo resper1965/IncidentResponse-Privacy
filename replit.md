@@ -101,7 +101,40 @@ dados_extraidos (
 
 Preferred communication style: Simple, everyday language.
 
+## Recent Changes
+
+- **June 27, 2025**: Initial LGPD compliance system setup
+- **June 27, 2025**: Enhanced dashboard with elegant modern design using Inter font and gradient styling
+- **June 27, 2025**: Added directory selection feature for document scanning with custom path support
+- **June 27, 2025**: Implemented priority company classification system with predefined enterprise list including BRADESCO, PETROBRAS, ONS, EMBRAER, REDE DOR, ED GLOBO, GLOBO, ELETROBRAS, CREFISA, EQUINIX, COHESITY, NETAPP, HITACHI, LENOVO
+- **June 27, 2025**: Added enterprise management interface with add/remove functionality and contact information tracking
+
+## Priority Company Classification
+
+The system now includes a sophisticated priority company classification feature that automatically identifies when personal data belongs to major enterprises. This enhances LGPD compliance monitoring for high-priority business relationships.
+
+### Enterprise Database Schema
+```sql
+empresas_prioritarias (
+    id INTEGER PRIMARY KEY,
+    nome_empresa TEXT UNIQUE,
+    observacoes TEXT,
+    email_contato TEXT,
+    ativa BOOLEAN,
+    data_criacao TIMESTAMP
+)
+```
+
+### Key Features
+- **Automatic Detection**: System automatically flags data from priority companies during extraction
+- **Enterprise Management**: Dashboard interface for adding, editing, and removing priority companies
+- **Contact Tracking**: Email addresses and notes for each priority enterprise
+- **Compliance Monitoring**: Enhanced reporting for high-priority business data
+- **Predefined List**: Includes major Brazilian corporations and international technology companies
+
 ## Changelog
 
 Changelog:
 - June 27, 2025. Initial setup
+- June 27, 2025. Added elegant dashboard design with modern UI components
+- June 27, 2025. Implemented directory selection and priority company classification
