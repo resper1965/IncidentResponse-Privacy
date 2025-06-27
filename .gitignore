@@ -1,0 +1,143 @@
+# LGPD Compliance Dashboard - Git Ignore Configuration
+
+# Environment Configuration
+.env
+.env.local
+.env.production
+.env.development
+
+# Data Directory - Protect all personal data files
+data/
+data/*
+data/**/*
+
+# Database Files
+*.db
+*.sqlite
+*.sqlite3
+lgpd_data.db
+
+# Logs and Temporary Files
+logs/
+*.log
+*.tmp
+*.temp
+temp/
+tmp/
+
+# Python Cache and Virtual Environment
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
+# Virtual Environments
+venv/
+env/
+ENV/
+.venv/
+.env/
+
+# IDE and Editor Files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+Thumbs.db
+
+# Backup Files
+*.bak
+*.backup
+backup/
+backups/
+
+# Sensitive Files
+secrets/
+private/
+confidential/
+*.key
+*.pem
+*.p12
+*.pfx
+
+# Processing Output
+output/
+exports/
+reports/
+*.xlsx
+*.csv
+*.json
+*.xml
+
+# OCR and Image Processing Cache
+.tesseract/
+ocr_cache/
+image_cache/
+
+# Flask Session Files
+flask_session/
+sessions/
+
+# AI Model Cache
+.langchain/
+.openai/
+model_cache/
+
+# System Files
+.git/
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Documentation Build
+docs/_build/
+site/
+
+# Test Coverage
+htmlcov/
+.coverage
+.pytest_cache/
+.tox/
+
+# Jupyter Notebooks
+.ipynb_checkpoints/
+
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# Windows
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+
+# Linux
+*~
+.nfs*
+
+# File Processing Temporary
+processing/
+queue/
+temp_files/
+extracted/

@@ -26,7 +26,8 @@ from database import (
     carregar_prioridades_padrao,
     obter_regex_patterns,
     inserir_regex_pattern,
-    carregar_regex_padrao
+    carregar_regex_padrao,
+    get_database_connection
 )
 from main import processar_arquivos
 from ai_enhanced_processor import processar_arquivos_com_ia
@@ -335,6 +336,345 @@ def api_system_status():
         'ai_system_enabled': POSTGRESQL_ENABLED,
         'timestamp': datetime.now().isoformat()
     })
+
+# === RELATÓRIOS E EXPORTAÇÃO EXCEL ===
+
+@app.route('/api/export-excel-filtrado', methods=['POST'])
+def api_export_excel_filtrado():
+    """API para exportar dados filtrados para Excel"""
+    try:
+        from openpyxl import Workbook
+        from openpyxl.styles import Font, PatternFill, Alignment
+        from openpyxl.utils import get_column_letter
+        import io
+        from flask import send_file
+        
+        # Obter filtros da requisição
+        filtros = request.get_json() if request.is_json else {}
+        
+        # Aplicar filtros aos dados
+        dados_filtrados = aplicar_filtros_relatorio(filtros)
+        
+        # Criar workbook do Excel
+        wb = Workbook()
+        ws = wb.active
+        ws.title = "Dados LGPD"
+        
+        # Definir cabeçalhos
+        cabecalhos = [
+            'ID', 'Arquivo', 'Titular', 'Tipo de Dado', 'Valor', 
+            'Contexto', 'Prioridade', 'Método Identificação', 'Timestamp',
+            'Empresa Identificada', 'Domínio Email', 'Formato Arquivo'
+        ]
+        
+        # Estilizar cabeçalhos
+        header_font = Font(bold=True, color="FFFFFF")
+        header_fill = PatternFill(start_color="366092", end_color="366092", fill_type="solid")
+        header_alignment = Alignment(horizontal="center", vertical="center")
+        
+        for col, cabecalho in enumerate(cabecalhos, 1):
+            cell = ws.cell(row=1, column=col, value=cabecalho)
+            cell.font = header_font
+            cell.fill = header_fill
+            cell.alignment = header_alignment
+        
+        # Adicionar dados
+        for row_idx, dado in enumerate(dados_filtrados, 2):
+            ws.cell(row=row_idx, column=1, value=dado.get('id', ''))
+            ws.cell(row=row_idx, column=2, value=dado.get('arquivo', ''))
+            ws.cell(row=row_idx, column=3, value=dado.get('titular', ''))
+            ws.cell(row=row_idx, column=4, value=dado.get('campo', ''))
+            ws.cell(row=row_idx, column=5, value=dado.get('valor', ''))
+            ws.cell(row=row_idx, column=6, value=dado.get('contexto', ''))
+            ws.cell(row=row_idx, column=7, value=dado.get('prioridade', ''))
+            ws.cell(row=row_idx, column=8, value=dado.get('origem_identificacao', ''))
+            ws.cell(row=row_idx, column=9, value=dado.get('timestamp', ''))
+            ws.cell(row=row_idx, column=10, value=extrair_empresa_do_contexto(dado.get('contexto', '')))
+            ws.cell(row=row_idx, column=11, value=extrair_dominio_email(dado.get('valor', '')))
+            ws.cell(row=row_idx, column=12, value=obter_extensao_arquivo(dado.get('arquivo', '')))
+        
+        # Ajustar largura das colunas
+        for col in range(1, len(cabecalhos) + 1):
+            column_letter = get_column_letter(col)
+            ws.column_dimensions[column_letter].width = 15
+        
+        # Criar segunda aba com estatísticas
+        ws_stats = wb.create_sheet(title="Estatísticas")
+        estatisticas = gerar_estatisticas_relatorio(dados_filtrados)
+        
+        # Adicionar estatísticas
+        ws_stats.cell(row=1, column=1, value="Estatísticas do Relatório LGPD").font = Font(bold=True, size=14)
+        row = 3
+        
+        for categoria, valores in estatisticas.items():
+            ws_stats.cell(row=row, column=1, value=categoria).font = Font(bold=True)
+            row += 1
+            
+            for chave, valor in valores.items():
+                ws_stats.cell(row=row, column=2, value=chave)
+                ws_stats.cell(row=row, column=3, value=valor)
+                row += 1
+            row += 1
+        
+        # Criar terceira aba com resumo por empresa
+        ws_empresa = wb.create_sheet(title="Resumo por Empresa")
+        resumo_empresas = gerar_resumo_empresas(dados_filtrados)
+        
+        cabecalhos_empresa = ['Empresa', 'Total de Registros', 'CPFs', 'Emails', 'Telefones', 'Prioridade Média']
+        for col, cabecalho in enumerate(cabecalhos_empresa, 1):
+            cell = ws_empresa.cell(row=1, column=col, value=cabecalho)
+            cell.font = header_font
+            cell.fill = header_fill
+            cell.alignment = header_alignment
+        
+        for row_idx, (empresa, dados) in enumerate(resumo_empresas.items(), 2):
+            ws_empresa.cell(row=row_idx, column=1, value=empresa)
+            ws_empresa.cell(row=row_idx, column=2, value=dados['total'])
+            ws_empresa.cell(row=row_idx, column=3, value=dados['cpfs'])
+            ws_empresa.cell(row=row_idx, column=4, value=dados['emails'])
+            ws_empresa.cell(row=row_idx, column=5, value=dados['telefones'])
+            ws_empresa.cell(row=row_idx, column=6, value=dados['prioridade_media'])
+        
+        # Salvar arquivo em buffer
+        buffer = io.BytesIO()
+        wb.save(buffer)
+        buffer.seek(0)
+        
+        filename = f"relatorio_lgpd_{datetime.now().strftime('%Y%m%d_%H%M%S')}.xlsx"
+        
+        return send_file(
+            buffer,
+            as_attachment=True,
+            download_name=filename,
+            mimetype='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+        )
+        
+    except Exception as e:
+        return jsonify({'status': 'error', 'message': f'Erro na exportação: {str(e)}'})
+
+@app.route('/api/relatorio-completo', methods=['POST'])
+def api_relatorio_completo():
+    """API para gerar relatório completo com análises avançadas"""
+    try:
+        from openpyxl import Workbook
+        from openpyxl.styles import Font, PatternFill, Alignment, Border, Side
+        from openpyxl.chart import BarChart, PieChart, Reference
+        import io
+        
+        filtros = request.get_json() if request.is_json else {}
+        dados_filtrados = aplicar_filtros_relatorio(filtros)
+        
+        wb = Workbook()
+        
+        # Aba 1: Dashboard Executivo
+        ws_dashboard = wb.active
+        ws_dashboard.title = "Dashboard Executivo"
+        
+        # Criar dashboard visual
+        criar_dashboard_executivo(ws_dashboard, dados_filtrados)
+        
+        # Aba 2: Dados Detalhados
+        ws_detalhes = wb.create_sheet(title="Dados Detalhados")
+        criar_planilha_dados_detalhados(ws_detalhes, dados_filtrados)
+        
+        # Aba 3: Análise de Riscos
+        ws_riscos = wb.create_sheet(title="Análise de Riscos")
+        criar_analise_riscos(ws_riscos, dados_filtrados)
+        
+        # Aba 4: Conformidade LGPD
+        ws_conformidade = wb.create_sheet(title="Conformidade LGPD")
+        criar_analise_conformidade(ws_conformidade, dados_filtrados)
+        
+        # Aba 5: Plano de Ação
+        ws_acoes = wb.create_sheet(title="Plano de Ação")
+        criar_plano_acao(ws_acoes, dados_filtrados)
+        
+        # Salvar arquivo
+        buffer = io.BytesIO()
+        wb.save(buffer)
+        buffer.seek(0)
+        
+        filename = f"relatorio_completo_lgpd_{datetime.now().strftime('%Y%m%d_%H%M%S')}.xlsx"
+        
+        return send_file(
+            buffer,
+            as_attachment=True,
+            download_name=filename,
+            mimetype='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+        )
+        
+    except Exception as e:
+        return jsonify({'status': 'error', 'message': f'Erro no relatório completo: {str(e)}'})
+
+def aplicar_filtros_relatorio(filtros):
+    """Aplica filtros aos dados para relatórios"""
+    conn = get_database_connection()
+    cursor = conn.cursor()
+    
+    # Query base
+    query = """
+    SELECT id, arquivo, titular, campo, valor, contexto, prioridade, 
+           origem_identificacao, timestamp
+    FROM dados_extraidos WHERE 1=1
+    """
+    
+    parametros = []
+    
+    # Aplicar filtros
+    if filtros.get('dominio') and filtros['dominio'] != 'todos':
+        query += " AND valor LIKE ?"
+        parametros.append(f"%{filtros['dominio']}%")
+    
+    if filtros.get('empresa') and filtros['empresa'] != 'todos':
+        query += " AND (titular LIKE ? OR contexto LIKE ?)"
+        parametros.extend([f"%{filtros['empresa']}%", f"%{filtros['empresa']}%"])
+    
+    if filtros.get('prioridade') and filtros['prioridade'] != 'todos':
+        query += " AND prioridade = ?"
+        parametros.append(filtros['prioridade'])
+    
+    if filtros.get('tipo_dado') and filtros['tipo_dado'] != 'todos':
+        query += " AND campo = ?"
+        parametros.append(filtros['tipo_dado'])
+    
+    if filtros.get('data_inicial'):
+        query += " AND DATE(timestamp) >= ?"
+        parametros.append(filtros['data_inicial'])
+    
+    if filtros.get('data_final'):
+        query += " AND DATE(timestamp) <= ?"
+        parametros.append(filtros['data_final'])
+    
+    if filtros.get('origem_identificacao') and filtros['origem_identificacao'] != 'todos':
+        query += " AND origem_identificacao = ?"
+        parametros.append(filtros['origem_identificacao'])
+    
+    if filtros.get('formato_arquivo') and filtros['formato_arquivo'] != 'todos':
+        query += " AND arquivo LIKE ?"
+        parametros.append(f"%{filtros['formato_arquivo']}")
+    
+    if filtros.get('com_contexto'):
+        query += " AND contexto IS NOT NULL AND contexto != ''"
+    
+    query += " ORDER BY timestamp DESC"
+    
+    cursor.execute(query, parametros)
+    resultados = cursor.fetchall()
+    
+    # Converter para lista de dicionários
+    colunas = ['id', 'arquivo', 'titular', 'campo', 'valor', 'contexto', 
+               'prioridade', 'origem_identificacao', 'timestamp']
+    
+    dados = []
+    for resultado in resultados:
+        dados.append(dict(zip(colunas, resultado)))
+    
+    conn.close()
+    return dados
+
+def extrair_empresa_do_contexto(contexto):
+    """Extrai nome da empresa do contexto"""
+    if not contexto:
+        return ""
+    
+    # Lista de empresas conhecidas para identificação
+    empresas_conhecidas = [
+        'BRADESCO', 'PETROBRAS', 'ONS', 'EMBRAER', 'REDE DOR', 'ED GLOBO', 
+        'GLOBO', 'ELETROBRAS', 'CREFISA', 'EQUINIX', 'COHESITY', 'NETAPP', 
+        'HITACHI', 'LENOVO', 'MICROSOFT', 'GOOGLE', 'AMAZON', 'IBM'
+    ]
+    
+    contexto_upper = contexto.upper()
+    for empresa in empresas_conhecidas:
+        if empresa in contexto_upper:
+            return empresa
+    
+    return "Não Identificada"
+
+def extrair_dominio_email(valor):
+    """Extrai domínio de email do valor"""
+    if '@' in valor:
+        return valor.split('@')[1] if len(valor.split('@')) > 1 else ""
+    return ""
+
+def obter_extensao_arquivo(arquivo):
+    """Obtém extensão do arquivo"""
+    import os
+    return os.path.splitext(arquivo)[1] if arquivo else ""
+
+def gerar_estatisticas_relatorio(dados):
+    """Gera estatísticas do relatório"""
+    total_registros = len(dados)
+    
+    # Contar por tipo de dado
+    tipos_dados = {}
+    prioridades = {}
+    origens = {}
+    
+    for dado in dados:
+        # Tipos de dados
+        tipo = dado.get('campo', 'Não identificado')
+        tipos_dados[tipo] = tipos_dados.get(tipo, 0) + 1
+        
+        # Prioridades
+        prioridade = dado.get('prioridade', 'Não definida')
+        prioridades[prioridade] = prioridades.get(prioridade, 0) + 1
+        
+        # Origens de identificação
+        origem = dado.get('origem_identificacao', 'Não definida')
+        origens[origem] = origens.get(origem, 0) + 1
+    
+    return {
+        'Resumo Geral': {
+            'Total de Registros': total_registros,
+            'Registros com Alta Prioridade': prioridades.get('Alta', 0),
+            'Registros com Contexto': len([d for d in dados if d.get('contexto')])
+        },
+        'Por Tipo de Dado': tipos_dados,
+        'Por Prioridade': prioridades,
+        'Por Origem de Identificação': origens
+    }
+
+def gerar_resumo_empresas(dados):
+    """Gera resumo por empresa"""
+    empresas = {}
+    
+    for dado in dados:
+        empresa = extrair_empresa_do_contexto(dado.get('contexto', ''))
+        if empresa not in empresas:
+            empresas[empresa] = {
+                'total': 0,
+                'cpfs': 0,
+                'emails': 0,
+                'telefones': 0,
+                'prioridades': []
+            }
+        
+        empresas[empresa]['total'] += 1
+        
+        tipo_dado = dado.get('campo', '').lower()
+        if 'cpf' in tipo_dado:
+            empresas[empresa]['cpfs'] += 1
+        elif 'email' in tipo_dado:
+            empresas[empresa]['emails'] += 1
+        elif 'telefone' in tipo_dado:
+            empresas[empresa]['telefones'] += 1
+        
+        prioridade = dado.get('prioridade', '')
+        if prioridade:
+            empresas[empresa]['prioridades'].append(prioridade)
+    
+    # Calcular prioridade média
+    for empresa in empresas:
+        prioridades = empresas[empresa]['prioridades']
+        if prioridades:
+            valores_prioridade = {'Alta': 3, 'Média': 2, 'Baixa': 1}
+            media = sum(valores_prioridade.get(p, 1) for p in prioridades) / len(prioridades)
+            empresas[empresa]['prioridade_media'] = round(media, 2)
+        else:
+            empresas[empresa]['prioridade_media'] = 0
+    
+    return empresas
 
 if __name__ == '__main__':
     # Inicializar sistemas

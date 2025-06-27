@@ -384,30 +384,131 @@
             </div>
         </div>
         
-        <!-- Controles de Filtros -->
+        <!-- Controles de Filtros Avançados -->
         <div class="controls">
-            <div class="control-group">
-                <label for="filtro-dominio">Filtrar por Domínio:</label>
-                <select id="filtro-dominio">
-                    <option value="todos">Todos os Domínios</option>
-                </select>
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+                <h4 style="margin: 0;">Filtros para Relatórios</h4>
+                <button onclick="mostrarFiltrosAvancados()" id="btn-filtros-avancados" style="background: #3b82f6; color: white; border: none; padding: 0.5rem 1rem; border-radius: 6px;">
+                    🔍 Filtros Avançados
+                </button>
             </div>
             
-            <div class="control-group">
-                <label for="filtro-empresa">Filtrar por Empresa:</label>
-                <select id="filtro-empresa">
-                    <option value="todos">Todas as Empresas</option>
-                </select>
+            <!-- Filtros Básicos -->
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin-bottom: 1rem;">
+                <div class="control-group">
+                    <label for="filtro-dominio">Filtrar por Domínio:</label>
+                    <select id="filtro-dominio">
+                        <option value="todos">Todos os Domínios</option>
+                    </select>
+                </div>
+                
+                <div class="control-group">
+                    <label for="filtro-empresa">Filtrar por Empresa:</label>
+                    <select id="filtro-empresa">
+                        <option value="todos">Todas as Empresas</option>
+                    </select>
+                </div>
+                
+                <div class="control-group">
+                    <label for="filtro-prioridade">Filtrar por Prioridade:</label>
+                    <select id="filtro-prioridade">
+                        <option value="todos">Todas as Prioridades</option>
+                        <option value="Alta">Alta</option>
+                        <option value="Média">Média</option>
+                        <option value="Baixa">Baixa</option>
+                    </select>
+                </div>
+                
+                <div class="control-group">
+                    <label for="filtro-tipo-dado">Tipo de Dado:</label>
+                    <select id="filtro-tipo-dado">
+                        <option value="todos">Todos os Tipos</option>
+                        <option value="cpf">CPF</option>
+                        <option value="email">Email</option>
+                        <option value="telefone">Telefone</option>
+                        <option value="rg">RG</option>
+                        <option value="nome">Nome</option>
+                    </select>
+                </div>
             </div>
             
-            <div class="control-group">
-                <label>&nbsp;</label>
-                <button onclick="filtrarDados()">Aplicar Filtros</button>
+            <!-- Botões de Ação -->
+            <div style="display: flex; gap: 1rem; justify-content: flex-end; flex-wrap: wrap;">
+                <button onclick="filtrarDados()" style="background: #10b981; color: white; border: none; padding: 0.5rem 1rem; border-radius: 6px;">
+                    Aplicar Filtros
+                </button>
+                <button onclick="limparFiltros()" style="background: #6b7280; color: white; border: none; padding: 0.5rem 1rem; border-radius: 6px;">
+                    Limpar Filtros
+                </button>
+                <button onclick="exportarExcel()" style="background: #059669; color: white; border: none; padding: 0.5rem 1rem; border-radius: 6px;">
+                    📊 Exportar Excel
+                </button>
+                <button onclick="exportarRelatorioCompleto()" style="background: #7c3aed; color: white; border: none; padding: 0.5rem 1rem; border-radius: 6px;">
+                    📋 Relatório Completo
+                </button>
             </div>
-            
-            <div class="control-group">
-                <label>&nbsp;</label>
-                <button onclick="exportarExcel()">Exportar Excel</button>
+        </div>
+        
+        <!-- Modal de Filtros Avançados -->
+        <div id="modal-filtros-avancados" class="modal" style="display: none;">
+            <div class="modal-content" style="max-width: 600px;">
+                <div class="modal-header">
+                    <h3>Filtros Avançados para Relatórios</h3>
+                    <span class="close" onclick="fecharFiltrosAvancados()">&times;</span>
+                </div>
+                <div class="modal-body">
+                    <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 1rem; margin-bottom: 1rem;">
+                        <div>
+                            <label style="display: block; margin-bottom: 0.5rem; font-weight: 500;">Data Inicial:</label>
+                            <input type="date" id="filtro-data-inicial" style="width: 100%; padding: 0.5rem; border: 1px solid #d1d5db; border-radius: 4px;">
+                        </div>
+                        <div>
+                            <label style="display: block; margin-bottom: 0.5rem; font-weight: 500;">Data Final:</label>
+                            <input type="date" id="filtro-data-final" style="width: 100%; padding: 0.5rem; border: 1px solid #d1d5db; border-radius: 4px;">
+                        </div>
+                    </div>
+                    
+                    <div style="margin-bottom: 1rem;">
+                        <label style="display: block; margin-bottom: 0.5rem; font-weight: 500;">Método de Identificação:</label>
+                        <select id="filtro-origem-identificacao" style="width: 100%; padding: 0.5rem; border: 1px solid #d1d5db; border-radius: 4px;">
+                            <option value="todos">Todos os Métodos</option>
+                            <option value="Regex">Regex</option>
+                            <option value="spaCy NER">spaCy NER</option>
+                            <option value="Híbrido">Híbrido (Regex + IA)</option>
+                        </select>
+                    </div>
+                    
+                    <div style="margin-bottom: 1rem;">
+                        <label style="display: block; margin-bottom: 0.5rem; font-weight: 500;">Formato de Arquivo:</label>
+                        <select id="filtro-formato-arquivo" style="width: 100%; padding: 0.5rem; border: 1px solid #d1d5db; border-radius: 4px;">
+                            <option value="todos">Todos os Formatos</option>
+                            <option value=".pdf">PDF</option>
+                            <option value=".docx">Word (DOCX)</option>
+                            <option value=".xlsx">Excel (XLSX)</option>
+                            <option value=".txt">Texto (TXT)</option>
+                            <option value=".msg">Email Outlook (MSG)</option>
+                            <option value=".eml">Email (EML)</option>
+                            <option value=".csv">CSV</option>
+                            <option value=".xml">XML</option>
+                            <option value=".json">JSON</option>
+                        </select>
+                    </div>
+                    
+                    <div style="margin-bottom: 1rem;">
+                        <label style="display: block; margin-bottom: 0.5rem; font-weight: 500;">Incluir apenas dados com contexto:</label>
+                        <input type="checkbox" id="filtro-com-contexto" checked>
+                        <span style="margin-left: 0.5rem;">Incluir apenas registros com contexto identificado</span>
+                    </div>
+                    
+                    <div style="display: flex; gap: 1rem; justify-content: flex-end;">
+                        <button onclick="fecharFiltrosAvancados()" style="background: #6b7280; color: white; border: none; padding: 0.5rem 1rem; border-radius: 6px;">
+                            Cancelar
+                        </button>
+                        <button onclick="aplicarFiltrosAvancados()" style="background: #10b981; color: white; border: none; padding: 0.5rem 1rem; border-radius: 6px;">
+                            Aplicar Filtros
+                        </button>
+                    </div>
+                </div>
             </div>
         </div>
         
