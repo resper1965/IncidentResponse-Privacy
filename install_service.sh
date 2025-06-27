@@ -102,23 +102,22 @@ systemctl start postgresql
 systemctl enable postgresql
 
 # Criar usuário e banco PostgreSQL
-sudo -u postgres psql << EOF
--- Criar usuário se não existir
-DO \$\$
-BEGIN
-    IF NOT EXISTS (SELECT FROM pg_catalog.pg_roles WHERE rolname = 'privacy') THEN
-        CREATE USER privacy WITH PASSWORD 'ncrisisops_secure_2025';
-    END IF;
-END
-\$\$;
+echo "👤 Criando usuário PostgreSQL..."
+sudo -u postgres psql -c "DROP USER IF EXISTS privacy;" 2>/dev/null || true
+sudo -u postgres psql -c "CREATE USER privacy WITH PASSWORD 'ncrisisops_secure_2025';"
 
--- Criar banco se não existir
-SELECT 'CREATE DATABASE privacy OWNER privacy'
-WHERE NOT EXISTS (SELECT FROM pg_database WHERE datname = 'privacy');
+echo "🗄️ Criando banco de dados..."
+sudo -u postgres psql -c "DROP DATABASE IF EXISTS privacy;" 2>/dev/null || true
+sudo -u postgres psql -c "CREATE DATABASE privacy OWNER privacy;"
+sudo -u postgres psql -c "GRANT ALL PRIVILEGES ON DATABASE privacy TO privacy;"
 
--- Conceder privilégios
-GRANT ALL PRIVILEGES ON DATABASE privacy TO privacy;
-EOF
+# Verificar se banco foi criado
+echo "✅ Verificando banco..."
+if sudo -u postgres psql -lqt | cut -d \| -f 1 | grep -qw privacy; then
+    echo "✅ Banco 'privacy' criado com sucesso"
+else
+    echo "❌ Erro ao criar banco 'privacy'"
+fi
 
 # Criar serviço systemd
 echo "🚀 Criando serviço systemd..."
