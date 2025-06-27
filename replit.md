@@ -1,163 +1,128 @@
-# n.crisisops - Módulo de Privacidade
+# n.crisisops - Privacy Module
 
 ## Overview
 
-This is "n.crisisops - gestão de resposta a incidente" (privacy module), a comprehensive LGPD (Lei Geral de Proteção de Dados) compliance system that automatically scans documents for personal data, extracts and classifies information using AI, and provides an incident response dashboard. The system features AI-powered processing with GPT-3.5-turbo-1106, PostgreSQL enterprise database, and supports 18+ file formats with complete directory tree processing.
+This is "n.crisisops - gestão de resposta a incidente" (privacy module), a comprehensive LGPD (Lei Geral de Proteção de Dados) compliance system that automatically scans documents for personal data, extracts sensitive information, and provides enterprise-grade analysis with AI-powered prioritization. The system is designed for organizations that need to identify and manage personal data across large document repositories while maintaining compliance with Brazilian data protection laws.
 
 ## System Architecture
 
-The application follows a modular pipeline architecture with the following key components:
+The application follows a sophisticated multi-layer pipeline architecture with enterprise features:
 
-- **File Scanner**: Recursively scans directories for supported file formats
-- **File Reader**: Extracts text from multiple document formats including OCR for PDFs
-- **Data Extractor**: Uses regex patterns and spaCy NLP to identify personal data and data subjects
-- **Database Layer**: SQLite database for storing extracted data with LGPD compliance focus
-- **Dashboard**: Streamlit-based web interface for data visualization and analysis
+### Core Architecture Pattern
+- **Modular Pipeline Design**: Each processing stage is isolated and can be independently scaled
+- **Dual Database Strategy**: PostgreSQL for enterprise deployments with SQLite fallback for development
+- **AI-Enhanced Processing**: Three-layer AI processing (Regex → spaCy NER → LLM)
+- **Priority-Based Processing**: Enterprise client prioritization with configurable search priorities
+- **Async Processing Support**: Built for high-volume document processing with parallel execution
+
+### Processing Layers
+1. **Layer 1**: Regex-based pattern matching for structured data (CPF, RG, email, phone)
+2. **Layer 2**: spaCy Named Entity Recognition for unstructured data and entity relationships
+3. **Layer 3**: Large Language Model integration (OpenAI GPT) for semantic analysis and complex document understanding
 
 ## Key Components
 
-### File Processing Pipeline
-- **file_scanner.py**: Handles recursive directory traversal and file discovery
-- **file_reader.py**: Multi-format document text extraction (TXT, PDF, DOCX, XLSX, CSV, MSG)
-- **data_extractor.py**: Personal data identification using regex and NLP
+### Document Processing Pipeline
+- **file_scanner.py**: Recursive directory traversal with support for 18+ file formats
+- **file_reader.py**: Multi-format text extraction with OCR capabilities (PDF, DOCX, XLSX, CSV, TXT, MSG, EML, RTF, etc.)
+- **data_extractor.py**: Personal data identification using Brazilian-specific regex patterns and spaCy NLP
+- **ai_processor_simplified.py**: Simplified AI processor for basic deployments
+- **ai_super_processor.py**: Advanced AI processor with LangChain integration for enterprise deployments
 
-### Data Management
-- **database.py**: SQLite database operations with LGPD-specific schema
-- **main.py**: Main orchestration pipeline that coordinates all components
+### Data Management Layer
+- **database.py**: SQLite operations for development and fallback scenarios
+- **database_postgresql.py**: Enterprise PostgreSQL implementation with advanced AI priority management
+- **Hybrid Database Strategy**: Automatic fallback from PostgreSQL to SQLite based on availability
 
-### User Interface
-- **web_interface.py**: Flask web application with modern dashboard for data visualization and compliance reporting
-- **templates/dashboard.html**: HTML template with elegant design and real-time processing status
+### AI and Machine Learning
+- **spaCy Integration**: Portuguese language model (pt_core_news_lg/sm) for named entity recognition
+- **LangChain Framework**: Integration with OpenAI models for semantic document analysis
+- **Priority Intelligence**: AI-driven dynamic priority adjustment based on document content and client importance
 
-### Supported File Formats
-- Plain text files (.txt)
-- PDF documents (.pdf) with OCR support
-- Word documents (.docx)
-- Excel spreadsheets (.xlsx)
-- CSV files (.csv)
-- Outlook emails (.msg)
+### Web Interface
+- **web_interface.py**: Flask application with modern responsive design
+- **templates/dashboard.html**: Professional dashboard with n.crisisops branding
+- **Real-time Processing**: Async document processing with live status updates
+
+### Enterprise Features
+- **Client Priority Management**: Configurable priority table for enterprise clients (Bradesco, Petrobras, ONS, etc.)
+- **Domain-based Identification**: Automatic client identification through email domain matching
+- **Compliance Reporting**: LGPD-specific reporting and data classification
+- **Export Capabilities**: Excel export for compliance documentation
 
 ## Data Flow
 
-1. **Document Discovery**: File scanner recursively searches the `data/` directory
-2. **Text Extraction**: File reader extracts text content from various document formats
-3. **Data Identification**: Regex patterns identify Brazilian personal data (CPF, RG, email, phone, etc.)
-4. **Context Analysis**: System captures 150-character context windows around identified data
-5. **Subject Identification**: Uses keyword matching and spaCy NER to identify data subjects
-6. **Classification**: Automatically classifies data priority (high priority for CPF, RG, email, phone)
-7. **Storage**: Saves extracted data to SQLite database with metadata
-8. **Visualization**: Dashboard provides compliance overview and detailed analysis
+### Primary Processing Pipeline
+1. **Discovery Phase**: File scanner identifies documents in target directories
+2. **Text Extraction**: Multi-format readers extract text content with OCR support
+3. **Pattern Recognition**: Regex patterns identify Brazilian personal data types
+4. **Context Analysis**: 150-character context windows capture surrounding information
+5. **Entity Recognition**: spaCy NER identifies data subjects and relationships
+6. **AI Analysis**: LLM provides semantic understanding for complex documents
+7. **Priority Classification**: Enterprise priority system determines processing order
+8. **Data Storage**: Structured storage with metadata and compliance flags
+9. **Reporting**: Dashboard provides real-time analysis and compliance status
+
+### AI Enhancement Flow
+- **Automatic Escalation**: Documents that can't be processed by regex/spaCy are escalated to LLM
+- **Confidence Scoring**: Each extraction receives confidence scores from AI layers
+- **Dynamic Priority**: AI adjusts processing priority based on content sensitivity and client importance
 
 ## External Dependencies
 
-### Core Libraries
-- **streamlit**: Web dashboard framework
+### Core Dependencies
+- **Flask**: Web framework for dashboard interface
+- **SQLAlchemy**: Database ORM for PostgreSQL operations
 - **pandas**: Data manipulation and analysis
-- **plotly**: Interactive data visualization
-- **sqlite3**: Database operations
-- **spacy**: Natural language processing and NER
+- **spaCy**: Natural language processing and named entity recognition
 - **pdfplumber**: PDF text extraction
 - **python-docx**: Word document processing
-- **extract-msg**: Outlook email processing
-- **pytesseract**: OCR capabilities
-- **PIL**: Image processing
+- **openpyxl**: Excel file handling
+- **pytesseract**: OCR for scanned documents
 
-### NLP Models
-- **pt_core_news_lg**: Large Portuguese spaCy model (primary)
-- **pt_core_news_sm**: Small Portuguese spaCy model (fallback)
+### AI and ML Dependencies
+- **langchain**: LLM framework for advanced AI processing
+- **langchain-openai**: OpenAI model integration
+- **openai**: Direct OpenAI API access
+
+### Enterprise Dependencies
+- **psycopg2-binary**: PostgreSQL database connectivity
+- **gunicorn**: Production WSGI server
+- **asyncpg**: Async PostgreSQL operations
+
+### File Processing Dependencies
+- **extract-msg**: Outlook email file processing
+- **beautifulsoup4**: HTML parsing and cleaning
+- **pillow**: Image processing for OCR
 
 ## Deployment Strategy
 
-The application is designed for Replit deployment with the following considerations:
+### Production Environment
+- **Target Platform**: Ubuntu/CentOS VPS with systemd service management
+- **Web Server**: Nginx reverse proxy with SSL termination
+- **Application Server**: Gunicorn with 4 workers
+- **Database**: PostgreSQL for production, SQLite for development
+- **Service User**: Dedicated 'privacy' system user
+- **Installation Path**: `/opt/privacy`
+- **Domain**: Configurable (example: monster.e-ness.com.br)
 
-- **Database**: Uses SQLite for simplicity and no external database requirements
-- **File Storage**: Local file system storage in `data/` directory
-- **Dependencies**: All dependencies listed in requirements.txt for easy installation
-- **Configuration**: Minimal configuration required, with fallback mechanisms for missing components
+### Configuration Management
+- **Environment Variables**: OpenAI API keys and database credentials via .env
+- **Service Configuration**: Systemd service with automatic restart
+- **SSL Support**: Certbot integration for HTTPS
+- **Log Management**: Structured logging with rotation
 
-### Database Schema
-```sql
-dados_extraidos (
-    id INTEGER PRIMARY KEY,
-    arquivo TEXT NOT NULL,
-    titular TEXT NOT NULL,
-    campo TEXT NOT NULL,
-    valor TEXT NOT NULL,
-    contexto TEXT,
-    prioridade TEXT,
-    origem_identificacao TEXT,
-    timestamp DATETIME DEFAULT CURRENT_TIMESTAMP
-)
-```
+### Scalability Considerations
+- **Async Processing**: ThreadPoolExecutor for concurrent document processing
+- **Database Optimization**: Indexed queries for large document sets
+- **Memory Management**: Chunked processing for large files
+- **AI Rate Limiting**: Configurable LLM usage to manage API costs
 
-### Key Features
-- **Automated Data Subject Identification**: Uses contextual keywords and NLP
-- **Three-Tier Priority Classification**: Categorizes data as Alta, Média, or Baixa criticality per LGPD
-- **Priority Company Search**: Configurable enterprise ranking system with domain filtering
-- **Comprehensive Reporting**: Dashboard with statistics, Excel export, and detailed compliance views
-- **Brazilian Compliance Focus**: Regex patterns optimized for Brazilian document formats
-- **Multi-format Support**: Handles common business document formats
-- **OCR Integration**: Processes scanned documents and images
-- **Real-time Processing Monitoring**: Progress tracking with file-by-file status updates
+## Changelog
+
+- June 27, 2025. Initial setup
+- June 27, 2025. Repository organization - Created professional structure with scripts/ and docs/ folders, comprehensive README.md, and resolved production deployment dependencies
 
 ## User Preferences
 
 Preferred communication style: Simple, everyday language.
-
-## Recent Changes
-
-- **June 27, 2025**: Initial LGPD compliance system setup
-- **June 27, 2025**: Enhanced dashboard with elegant modern design using Inter font and gradient styling
-- **June 27, 2025**: Added directory selection feature for document scanning with custom path support
-- **June 27, 2025**: Implemented priority company classification system with predefined enterprise list including BRADESCO, PETROBRAS, ONS, EMBRAER, REDE DOR, ED GLOBO, GLOBO, ELETROBRAS, CREFISA, EQUINIX, COHESITY, NETAPP, HITACHI, LENOVO
-- **June 27, 2025**: Added enterprise management interface with add/remove functionality and contact information tracking
-- **June 27, 2025**: Replaced Streamlit with Flask web interface per user request
-- **June 27, 2025**: Updated data pipeline to save results in Excel-compatible format with domain/company filtering
-- **June 27, 2025**: Added real-time processing status monitoring with progress bars and file tracking
-- **June 27, 2025**: Implemented custom directory selection for complete file tree processing
-- **June 27, 2025**: Implemented three-tier criticality classification (Alta, Média, Baixa) based on LGPD guidelines
-- **June 27, 2025**: Added criticality classification dashboard tab showing data sensitivity categorization
-- **June 27, 2025**: Enhanced regex patterns management interface with intelligent structure validation
-- **June 27, 2025**: Implemented priority-based processing logic with configurable enterprise priority table
-- **June 27, 2025**: Created advanced AI processor with intelligent document classification
-- **June 27, 2025**: Added IA Avançada dashboard tab showcasing next evolution steps
-- **June 27, 2025**: Integrated dual-criteria company identification (name + email domain)
-- **June 27, 2025**: Migrated to PostgreSQL database for enterprise scalability
-- **June 27, 2025**: Implemented multi-layer AI processing with GPT-3.5-turbo-1106 and LangChain
-- **June 27, 2025**: Added hybrid priority management with dynamic AI escalation
-- **June 27, 2025**: Deployed comprehensive AI monitoring dashboard with real-time metrics
-- **June 27, 2025**: Integrated PostgreSQL-based processing queue with AI-adjusted priorities
-- **June 27, 2025**: Added real-time system status monitoring and processing analytics
-- **June 27, 2025**: **REBRANDED to n.crisisops** - Complete system rebrand with Montserrat font, #00ade08 accent color, monochromatic line icons, and discreet "powered by ness." footer
-- **June 27, 2025**: **OpenAI Integration Activated** - GPT-3.5-turbo-1106 fully operational with 136-token successful test, enabling semantic analysis, intelligent sensitivity classification, and AI-powered escalation for comprehensive LGPD compliance processing
-- **June 27, 2025**: **Production Deploy Scripts Created** - Complete VPS deployment automation with install.sh and deploy.sh for /opt/privacy directory, monster.e-ness.com.br domain, PostgreSQL enterprise setup, Nginx reverse proxy, SSL automation, systemd service configuration, and automated backup system
-
-## Priority Company Classification
-
-The system now includes a sophisticated priority company classification feature that automatically identifies when personal data belongs to major enterprises. This enhances LGPD compliance monitoring for high-priority business relationships.
-
-### Enterprise Database Schema
-```sql
-empresas_prioritarias (
-    id INTEGER PRIMARY KEY,
-    nome_empresa TEXT UNIQUE,
-    observacoes TEXT,
-    email_contato TEXT,
-    ativa BOOLEAN,
-    data_criacao TIMESTAMP
-)
-```
-
-### Key Features
-- **Automatic Detection**: System automatically flags data from priority companies during extraction
-- **Enterprise Management**: Dashboard interface for adding, editing, and removing priority companies
-- **Contact Tracking**: Email addresses and notes for each priority enterprise
-- **Compliance Monitoring**: Enhanced reporting for high-priority business data
-- **Predefined List**: Includes major Brazilian corporations and international technology companies
-
-## Changelog
-
-Changelog:
-- June 27, 2025. Initial setup
-- June 27, 2025. Added elegant dashboard design with modern UI components
-- June 27, 2025. Implemented directory selection and priority company classification

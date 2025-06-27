@@ -48,6 +48,13 @@ wheels/
 *.egg
 MANIFEST
 
+# Pip Cache - Prevent large cache files from being committed
+.cache/
+.cache/pip/
+pip-cache/
+pip-log.txt
+pip-delete-this-directory.txt
+
 # Virtual Environments
 venv/
 env/
