@@ -1,0 +1,492 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LGPD Compliance Dashboard</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background-color: #f8f9fa;
+            color: #1a1d29;
+            line-height: 1.6;
+        }
+        
+        .header {
+            background: white;
+            border-bottom: 1px solid #e1e5e9;
+            padding: 1.5rem 2rem;
+        }
+        
+        .header h1 {
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin-bottom: 0.25rem;
+        }
+        
+        .header p {
+            color: #6b7280;
+            font-size: 0.875rem;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+        
+        .metrics-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+        
+        .metric-card {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 8px;
+            border: 1px solid #e1e5e9;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        }
+        
+        .metric-label {
+            font-size: 0.875rem;
+            color: #6b7280;
+            font-weight: 500;
+            margin-bottom: 0.5rem;
+            text-transform: uppercase;
+            letter-spacing: 0.025em;
+        }
+        
+        .metric-value {
+            font-size: 2rem;
+            font-weight: 700;
+            color: #1a1d29;
+            margin-bottom: 0.5rem;
+        }
+        
+        .controls {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 8px;
+            border: 1px solid #e1e5e9;
+            margin-bottom: 2rem;
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+        
+        .control-group {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+        
+        .control-group label {
+            font-size: 0.875rem;
+            font-weight: 500;
+            color: #374151;
+        }
+        
+        select, button {
+            padding: 0.5rem 1rem;
+            border: 1px solid #d1d5db;
+            border-radius: 6px;
+            font-size: 0.875rem;
+            background: white;
+            transition: border-color 0.2s;
+        }
+        
+        select:focus {
+            border-color: #3b82f6;
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+        }
+        
+        button {
+            background: #3b82f6;
+            color: white;
+            border-color: #3b82f6;
+            cursor: pointer;
+            font-weight: 500;
+        }
+        
+        button:hover {
+            background: #2563eb;
+            border-color: #2563eb;
+        }
+        
+        .data-table {
+            background: white;
+            border-radius: 8px;
+            border: 1px solid #e1e5e9;
+            overflow: hidden;
+        }
+        
+        .table-header {
+            padding: 1.25rem 1.5rem;
+            border-bottom: 1px solid #e1e5e9;
+            background: #f8f9fa;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .table-header h3 {
+            font-size: 1.125rem;
+            font-weight: 600;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        
+        th, td {
+            padding: 0.75rem 1rem;
+            text-align: left;
+            border-bottom: 1px solid #e1e5e9;
+        }
+        
+        th {
+            background: #f8f9fa;
+            font-weight: 600;
+            font-size: 0.875rem;
+            color: #374151;
+        }
+        
+        td {
+            font-size: 0.875rem;
+        }
+        
+        .priority-high {
+            background: #fef2f2;
+            color: #dc2626;
+            padding: 0.25rem 0.5rem;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            font-weight: 500;
+        }
+        
+        .priority-low {
+            background: #f0f9ff;
+            color: #0369a1;
+            padding: 0.25rem 0.5rem;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            font-weight: 500;
+        }
+        
+        .loading {
+            text-align: center;
+            padding: 2rem;
+            color: #6b7280;
+        }
+        
+        .status-message {
+            padding: 1rem;
+            border-radius: 6px;
+            margin-bottom: 1rem;
+        }
+        
+        .status-success {
+            background: #dcfce7;
+            color: #166534;
+            border: 1px solid #bbf7d0;
+        }
+        
+        .status-error {
+            background: #fef2f2;
+            color: #dc2626;
+            border: 1px solid #fecaca;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>LGPD Compliance Dashboard</h1>
+        <p>Monitoramento e análise de dados pessoais em conformidade com a LGPD</p>
+    </div>
+    
+    <div class="container">
+        <!-- Métricas -->
+        <div class="metrics-grid" id="metrics">
+            <div class="metric-card">
+                <div class="metric-label">Total de Dados</div>
+                <div class="metric-value" id="total-dados">-</div>
+            </div>
+            <div class="metric-card">
+                <div class="metric-label">Arquivos Processados</div>
+                <div class="metric-value" id="arquivos-processados">-</div>
+            </div>
+            <div class="metric-card">
+                <div class="metric-label">Titulares Identificados</div>
+                <div class="metric-value" id="titulares-identificados">-</div>
+            </div>
+            <div class="metric-card">
+                <div class="metric-label">Dados Prioritários</div>
+                <div class="metric-value" id="dados-prioritarios">-</div>
+            </div>
+        </div>
+        
+        <!-- Controles -->
+        <div class="controls">
+            <div class="control-group">
+                <label for="filtro-dominio">Filtrar por Domínio:</label>
+                <select id="filtro-dominio">
+                    <option value="todos">Todos os Domínios</option>
+                </select>
+            </div>
+            
+            <div class="control-group">
+                <label for="filtro-empresa">Filtrar por Empresa:</label>
+                <select id="filtro-empresa">
+                    <option value="todos">Todas as Empresas</option>
+                </select>
+            </div>
+            
+            <div class="control-group">
+                <label>&nbsp;</label>
+                <button onclick="filtrarDados()">Aplicar Filtros</button>
+            </div>
+            
+            <div class="control-group">
+                <label>&nbsp;</label>
+                <button onclick="exportarExcel()">Exportar Excel</button>
+            </div>
+            
+            <div class="control-group">
+                <label>&nbsp;</label>
+                <button onclick="processarArquivos()">Processar Arquivos</button>
+            </div>
+            
+            <div class="control-group">
+                <label>&nbsp;</label>
+                <button onclick="carregarEmpresas()">Carregar Empresas</button>
+            </div>
+        </div>
+        
+        <!-- Mensagens de status -->
+        <div id="status-messages"></div>
+        
+        <!-- Tabela de dados -->
+        <div class="data-table">
+            <div class="table-header">
+                <h3>Resultados da Análise LGPD</h3>
+                <span id="contador-resultados">-</span>
+            </div>
+            <div style="overflow-x: auto;">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Domínio</th>
+                            <th>Empresa</th>
+                            <th>Tipo de Dado</th>
+                            <th>Valor Encontrado</th>
+                            <th>Titular</th>
+                            <th>Prioridade</th>
+                            <th>Arquivo</th>
+                            <th>Data</th>
+                        </tr>
+                    </thead>
+                    <tbody id="dados-table">
+                        <tr>
+                            <td colspan="8" class="loading">Carregando dados...</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        // Carregar dados iniciais
+        document.addEventListener('DOMContentLoaded', function() {
+            carregarEstatisticas();
+            carregarDominios();
+            carregarEmpresas();
+            carregarResultados();
+        });
+        
+        function carregarEstatisticas() {
+            fetch('/api/estatisticas')
+                .then(response => response.json())
+                .then(data => {
+                    document.getElementById('total-dados').textContent = data.total_dados || 0;
+                    document.getElementById('arquivos-processados').textContent = data.arquivos_processados || 0;
+                    document.getElementById('titulares-identificados').textContent = data.titulares_identificados || 0;
+                    document.getElementById('dados-prioritarios').textContent = data.dados_alta_prioridade || 0;
+                })
+                .catch(error => console.error('Erro ao carregar estatísticas:', error));
+        }
+        
+        function carregarDominios() {
+            fetch('/api/dominios')
+                .then(response => response.json())
+                .then(data => {
+                    const select = document.getElementById('filtro-dominio');
+                    select.innerHTML = '<option value="todos">Todos os Domínios</option>';
+                    data.forEach(dominio => {
+                        const option = document.createElement('option');
+                        option.value = dominio;
+                        option.textContent = dominio;
+                        select.appendChild(option);
+                    });
+                })
+                .catch(error => console.error('Erro ao carregar domínios:', error));
+        }
+        
+        function carregarEmpresas() {
+            fetch('/api/empresas')
+                .then(response => response.json())
+                .then(data => {
+                    const select = document.getElementById('filtro-empresa');
+                    select.innerHTML = '<option value="todos">Todas as Empresas</option>';
+                    data.forEach(empresa => {
+                        const option = document.createElement('option');
+                        option.value = empresa;
+                        option.textContent = empresa;
+                        select.appendChild(option);
+                    });
+                })
+                .catch(error => console.error('Erro ao carregar empresas:', error));
+        }
+        
+        function carregarResultados() {
+            const dominio = document.getElementById('filtro-dominio').value;
+            const empresa = document.getElementById('filtro-empresa').value;
+            
+            let url = '/api/resultados';
+            const params = new URLSearchParams();
+            
+            if (dominio && dominio !== 'todos') {
+                params.append('dominio', dominio);
+            }
+            if (empresa && empresa !== 'todos') {
+                params.append('empresa', empresa);
+            }
+            
+            if (params.toString()) {
+                url += '?' + params.toString();
+            }
+            
+            fetch(url)
+                .then(response => response.json())
+                .then(data => {
+                    const tbody = document.getElementById('dados-table');
+                    document.getElementById('contador-resultados').textContent = `${data.length} registros`;
+                    
+                    if (data.length === 0) {
+                        tbody.innerHTML = '<tr><td colspan="8" class="loading">Nenhum dado encontrado</td></tr>';
+                        return;
+                    }
+                    
+                    tbody.innerHTML = data.map(item => `
+                        <tr>
+                            <td>${item.dominio || '-'}</td>
+                            <td>${item.empresa || '-'}</td>
+                            <td>${item.tipo_dado}</td>
+                            <td>${item.valor_encontrado}</td>
+                            <td>${item.titular_identificado || '-'}</td>
+                            <td>
+                                <span class="priority-${item.prioridade === 'Alta' ? 'high' : 'low'}">
+                                    ${item.prioridade}
+                                </span>
+                            </td>
+                            <td>${item.arquivo_origem.split('/').pop()}</td>
+                            <td>${new Date(item.data_analise).toLocaleDateString('pt-BR')}</td>
+                        </tr>
+                    `).join('');
+                })
+                .catch(error => {
+                    console.error('Erro ao carregar resultados:', error);
+                    document.getElementById('dados-table').innerHTML = 
+                        '<tr><td colspan="8" class="loading">Erro ao carregar dados</td></tr>';
+                });
+        }
+        
+        function filtrarDados() {
+            carregarResultados();
+        }
+        
+        function exportarExcel() {
+            const dominio = document.getElementById('filtro-dominio').value;
+            const empresa = document.getElementById('filtro-empresa').value;
+            
+            let url = '/api/export-excel';
+            const params = new URLSearchParams();
+            
+            if (dominio && dominio !== 'todos') {
+                params.append('dominio', dominio);
+            }
+            if (empresa && empresa !== 'todos') {
+                params.append('empresa', empresa);
+            }
+            
+            if (params.toString()) {
+                url += '?' + params.toString();
+            }
+            
+            window.open(url, '_blank');
+        }
+        
+        function mostrarMensagem(tipo, mensagem) {
+            const container = document.getElementById('status-messages');
+            const div = document.createElement('div');
+            div.className = `status-message status-${tipo}`;
+            div.textContent = mensagem;
+            container.appendChild(div);
+            
+            setTimeout(() => {
+                div.remove();
+            }, 5000);
+        }
+        
+        function processarArquivos() {
+            mostrarMensagem('success', 'Iniciando processamento...');
+            
+            fetch('/api/processar', {
+                method: 'POST'
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.status === 'success') {
+                    mostrarMensagem('success', data.message);
+                    carregarEstatisticas();
+                    carregarResultados();
+                } else {
+                    mostrarMensagem('error', data.message);
+                }
+            })
+            .catch(error => {
+                mostrarMensagem('error', 'Erro no processamento: ' + error.message);
+            });
+        }
+        
+        function carregarEmpresas() {
+            fetch('/api/carregar-empresas', {
+                method: 'POST'
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.status === 'success') {
+                    mostrarMensagem('success', data.message);
+                } else {
+                    mostrarMensagem('error', data.message);
+                }
+            })
+            .catch(error => {
+                mostrarMensagem('error', 'Erro ao carregar empresas: ' + error.message);
+            });
+        }
+    </script>
+</body>
+</html>

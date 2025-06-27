@@ -10,7 +10,14 @@ import sys
 from file_scanner import listar_arquivos_recursivos
 from file_reader import extrair_texto
 from data_extractor import analisar_texto, inicializar_spacy
-from database import inicializar_banco, inserir_dado, verificar_prioridade
+from database import (
+    inicializar_banco, 
+    inserir_dado, 
+    verificar_prioridade,
+    inserir_resultado_analise,
+    extrair_dominio_de_email,
+    verificar_empresa_prioritaria
+)
 
 def processar_arquivos():
     """
@@ -67,6 +74,8 @@ def processar_arquivos():
                 # Inserir dados no banco
                 for dado in resultados:
                     prioridade = verificar_prioridade(dado['campo'])
+                    
+                    # Inserir no banco original
                     inserir_dado(
                         arquivo=arquivo,
                         titular=dado['titular'],
@@ -75,6 +84,36 @@ def processar_arquivos():
                         contexto=dado['contexto'],
                         prioridade=prioridade,
                         origem_identificacao=dado['origem_identificacao']
+                    )
+                    
+                    # Determinar domínio e empresa para nova tabela
+                    dominio = ""
+                    empresa = ""
+                    
+                    # Se o dado é um email, extrair domínio
+                    if dado['campo'] == 'email':
+                        dominio = extrair_dominio_de_email(dado['valor'])
+                    
+                    # Verificar se titular corresponde a empresa prioritária
+                    empresa_info = verificar_empresa_prioritaria(dado['titular'])
+                    if empresa_info:
+                        empresa = empresa_info['nome_empresa']
+                        if not dominio and empresa_info['email_contato']:
+                            dominio = extrair_dominio_de_email(empresa_info['email_contato'])
+                    else:
+                        empresa = dado['titular']
+                    
+                    # Inserir na nova tabela de resultados
+                    inserir_resultado_analise(
+                        dominio=dominio,
+                        empresa=empresa,
+                        tipo_dado=dado['campo'],
+                        valor_encontrado=dado['valor'],
+                        arquivo_origem=arquivo,
+                        contexto=dado['contexto'],
+                        titular_identificado=dado['titular'],
+                        metodo_identificacao=dado['origem_identificacao'],
+                        prioridade=prioridade
                     )
             else:
                 print(f"  ℹ️  Nenhum dado pessoal encontrado")

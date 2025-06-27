@@ -80,6 +80,24 @@ def inicializar_banco():
             )
         ''')
         
+        # Criar tabela de resultados por domínio/empresa
+        cursor.execute('''
+            CREATE TABLE IF NOT EXISTS resultados_analise (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                dominio TEXT NOT NULL,
+                empresa TEXT NOT NULL,
+                tipo_dado TEXT NOT NULL,
+                valor_encontrado TEXT NOT NULL,
+                arquivo_origem TEXT NOT NULL,
+                contexto TEXT,
+                titular_identificado TEXT,
+                metodo_identificacao TEXT,
+                prioridade TEXT NOT NULL,
+                data_analise TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                status_compliance TEXT DEFAULT 'PENDENTE'
+            )
+        ''')
+        
         # Criar índices para melhor performance
         cursor.execute('''
             CREATE INDEX IF NOT EXISTS idx_arquivo 
@@ -553,6 +571,204 @@ def carregar_empresas_padrao():
             observacoes=empresa["obs"],
             email_contato=empresa["email"]
         )
+
+# Funções para a nova tabela de resultados por domínio/empresa
+
+def inserir_resultado_analise(dominio, empresa, tipo_dado, valor_encontrado, arquivo_origem, 
+                             contexto, titular_identificado, metodo_identificacao, prioridade):
+    """
+    Insere resultado de análise na tabela com filtros por domínio e empresa
+    
+    Args:
+        dominio (str): Domínio da empresa (ex: bradesco.com.br)
+        empresa (str): Nome da empresa
+        tipo_dado (str): Tipo do dado (cpf, email, etc.)
+        valor_encontrado (str): Valor encontrado
+        arquivo_origem (str): Arquivo de origem
+        contexto (str): Contexto ao redor do dado
+        titular_identificado (str): Titular identificado
+        metodo_identificacao (str): Método usado para identificação
+        prioridade (str): Prioridade do dado
+        
+    Returns:
+        bool: True se inserido com sucesso
+    """
+    try:
+        conn = obter_conexao()
+        if not conn:
+            return False
+        
+        cursor = conn.cursor()
+        
+        cursor.execute('''
+            INSERT INTO resultados_analise 
+            (dominio, empresa, tipo_dado, valor_encontrado, arquivo_origem, 
+             contexto, titular_identificado, metodo_identificacao, prioridade)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+        ''', (dominio, empresa, tipo_dado, valor_encontrado, arquivo_origem,
+              contexto, titular_identificado, metodo_identificacao, prioridade))
+        
+        conn.commit()
+        conn.close()
+        
+        return True
+        
+    except Exception as e:
+        print(f"❌ Erro ao inserir resultado de análise: {str(e)}")
+        return False
+
+def obter_resultados_por_dominio(dominio=None):
+    """
+    Obtém resultados filtrados por domínio
+    
+    Args:
+        dominio (str): Domínio para filtrar (opcional)
+        
+    Returns:
+        list: Lista de resultados
+    """
+    try:
+        conn = obter_conexao()
+        if not conn:
+            return []
+        
+        cursor = conn.cursor()
+        
+        if dominio:
+            cursor.execute('''
+                SELECT * FROM resultados_analise 
+                WHERE dominio = ?
+                ORDER BY data_analise DESC
+            ''', (dominio,))
+        else:
+            cursor.execute('''
+                SELECT * FROM resultados_analise 
+                ORDER BY data_analise DESC
+            ''')
+        
+        resultados = []
+        for row in cursor.fetchall():
+            resultados.append(dict(row))
+        
+        conn.close()
+        return resultados
+        
+    except Exception as e:
+        print(f"❌ Erro ao obter resultados por domínio: {str(e)}")
+        return []
+
+def obter_resultados_por_empresa(empresa=None):
+    """
+    Obtém resultados filtrados por empresa
+    
+    Args:
+        empresa (str): Nome da empresa para filtrar (opcional)
+        
+    Returns:
+        list: Lista de resultados
+    """
+    try:
+        conn = obter_conexao()
+        if not conn:
+            return []
+        
+        cursor = conn.cursor()
+        
+        if empresa:
+            cursor.execute('''
+                SELECT * FROM resultados_analise 
+                WHERE empresa LIKE ?
+                ORDER BY data_analise DESC
+            ''', (f'%{empresa}%',))
+        else:
+            cursor.execute('''
+                SELECT * FROM resultados_analise 
+                ORDER BY data_analise DESC
+            ''')
+        
+        resultados = []
+        for row in cursor.fetchall():
+            resultados.append(dict(row))
+        
+        conn.close()
+        return resultados
+        
+    except Exception as e:
+        print(f"❌ Erro ao obter resultados por empresa: {str(e)}")
+        return []
+
+def obter_dominios_unicos():
+    """
+    Obtém lista de domínios únicos
+    
+    Returns:
+        list: Lista de domínios únicos
+    """
+    try:
+        conn = obter_conexao()
+        if not conn:
+            return []
+        
+        cursor = conn.cursor()
+        
+        cursor.execute('''
+            SELECT DISTINCT dominio FROM resultados_analise 
+            ORDER BY dominio
+        ''')
+        
+        dominios = [row[0] for row in cursor.fetchall()]
+        
+        conn.close()
+        return dominios
+        
+    except Exception as e:
+        print(f"❌ Erro ao obter domínios únicos: {str(e)}")
+        return []
+
+def obter_empresas_unicas():
+    """
+    Obtém lista de empresas únicas
+    
+    Returns:
+        list: Lista de empresas únicas
+    """
+    try:
+        conn = obter_conexao()
+        if not conn:
+            return []
+        
+        cursor = conn.cursor()
+        
+        cursor.execute('''
+            SELECT DISTINCT empresa FROM resultados_analise 
+            ORDER BY empresa
+        ''')
+        
+        empresas = [row[0] for row in cursor.fetchall()]
+        
+        conn.close()
+        return empresas
+        
+    except Exception as e:
+        print(f"❌ Erro ao obter empresas únicas: {str(e)}")
+        return []
+
+def extrair_dominio_de_email(email):
+    """
+    Extrai domínio de um email
+    
+    Args:
+        email (str): Email para extrair domínio
+        
+    Returns:
+        str: Domínio extraído ou string vazia
+    """
+    try:
+        if '@' in email:
+            return email.split('@')[1].lower()
+        return ""
+    except:
+        return ""
 
 # Função de teste para o módulo
 if __name__ == "__main__":
