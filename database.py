@@ -68,6 +68,18 @@ def inicializar_banco():
             )
         ''')
         
+        # Criar tabela de empresas prioritárias
+        cursor.execute('''
+            CREATE TABLE IF NOT EXISTS empresas_prioritarias (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                nome_empresa TEXT NOT NULL UNIQUE,
+                observacoes TEXT,
+                email_contato TEXT,
+                ativa BOOLEAN DEFAULT 1,
+                data_criacao TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+            )
+        ''')
+        
         # Criar índices para melhor performance
         cursor.execute('''
             CREATE INDEX IF NOT EXISTS idx_arquivo 
@@ -379,6 +391,168 @@ def backup_banco(caminho_backup=None):
     except Exception as e:
         print(f"❌ Erro ao criar backup: {str(e)}")
         return False
+
+# Funções para gerenciar empresas prioritárias
+
+def inserir_empresa_prioritaria(nome_empresa, observacoes="", email_contato=""):
+    """
+    Insere uma empresa prioritária no banco
+    
+    Args:
+        nome_empresa (str): Nome da empresa
+        observacoes (str): Observações sobre a empresa
+        email_contato (str): Email de contato
+        
+    Returns:
+        bool: True se inserido com sucesso
+    """
+    try:
+        conn = obter_conexao()
+        if not conn:
+            return False
+        
+        cursor = conn.cursor()
+        
+        cursor.execute('''
+            INSERT OR REPLACE INTO empresas_prioritarias 
+            (nome_empresa, observacoes, email_contato)
+            VALUES (?, ?, ?)
+        ''', (nome_empresa.upper().strip(), observacoes.strip(), email_contato.strip()))
+        
+        conn.commit()
+        conn.close()
+        
+        return True
+        
+    except Exception as e:
+        print(f"❌ Erro ao inserir empresa prioritária: {str(e)}")
+        return False
+
+def obter_empresas_prioritarias():
+    """
+    Obtém lista de empresas prioritárias
+    
+    Returns:
+        list: Lista de empresas prioritárias
+    """
+    try:
+        conn = obter_conexao()
+        if not conn:
+            return []
+        
+        cursor = conn.cursor()
+        
+        cursor.execute('''
+            SELECT id, nome_empresa, observacoes, email_contato, ativa, data_criacao
+            FROM empresas_prioritarias 
+            WHERE ativa = 1
+            ORDER BY nome_empresa
+        ''')
+        
+        empresas = []
+        for row in cursor.fetchall():
+            empresas.append({
+                'id': row['id'],
+                'nome_empresa': row['nome_empresa'],
+                'observacoes': row['observacoes'],
+                'email_contato': row['email_contato'],
+                'ativa': row['ativa'],
+                'data_criacao': row['data_criacao']
+            })
+        
+        conn.close()
+        return empresas
+        
+    except Exception as e:
+        print(f"❌ Erro ao obter empresas prioritárias: {str(e)}")
+        return []
+
+def remover_empresa_prioritaria(empresa_id):
+    """
+    Remove uma empresa prioritária (marca como inativa)
+    
+    Args:
+        empresa_id (int): ID da empresa
+        
+    Returns:
+        bool: True se removida com sucesso
+    """
+    try:
+        conn = obter_conexao()
+        if not conn:
+            return False
+        
+        cursor = conn.cursor()
+        
+        cursor.execute('''
+            UPDATE empresas_prioritarias 
+            SET ativa = 0
+            WHERE id = ?
+        ''', (empresa_id,))
+        
+        conn.commit()
+        conn.close()
+        
+        return True
+        
+    except Exception as e:
+        print(f"❌ Erro ao remover empresa prioritária: {str(e)}")
+        return False
+
+def verificar_empresa_prioritaria(texto_titular):
+    """
+    Verifica se um titular corresponde a uma empresa prioritária
+    
+    Args:
+        texto_titular (str): Texto do titular
+        
+    Returns:
+        dict: Informações da empresa prioritária ou None
+    """
+    try:
+        empresas = obter_empresas_prioritarias()
+        texto_upper = texto_titular.upper()
+        
+        for empresa in empresas:
+            nome_empresa = empresa['nome_empresa']
+            
+            # Verifica se o nome da empresa está contido no texto do titular
+            if nome_empresa in texto_upper or any(palavra in texto_upper for palavra in nome_empresa.split()):
+                return empresa
+        
+        return None
+        
+    except Exception as e:
+        print(f"❌ Erro ao verificar empresa prioritária: {str(e)}")
+        return None
+
+def carregar_empresas_padrao():
+    """
+    Carrega lista padrão de empresas prioritárias
+    """
+    empresas_padrao = [
+        {"nome": "BRADESCO", "email": "contato@bradesco.com.br", "obs": ""},
+        {"nome": "PETROBRAS", "email": "contato@petrobras.com.br", "obs": "Topologia"},
+        {"nome": "ONS", "email": "contato@ons.org.br", "obs": ""},
+        {"nome": "EMBRAER", "email": "contato@embraer.com.br", "obs": ""},
+        {"nome": "REDE DOR", "email": "contato@rededor.com.br", "obs": "Retorno até 16/06"},
+        {"nome": "ED GLOBO", "email": "contato@infoglobo.com.br", "obs": ""},
+        {"nome": "GLOBO", "email": "contato@g.globo", "obs": ""},
+        {"nome": "ELETROBRAS", "email": "contato@eletrobras.com", "obs": "Retorno até 13/06"},
+        {"nome": "CREFISA", "email": "contato@crefisa.com.br", "obs": ""},
+        {"nome": "EQUINIX", "email": "contato@equinix.com", "obs": ""},
+        {"nome": "COHESITY", "email": "contato@cohesity.com", "obs": ""},
+        {"nome": "NETAPP", "email": "contato@netapp.com", "obs": ""},
+        {"nome": "HITACHI", "email": "contato@hitachivantara.com", "obs": ""},
+        {"nome": "LENOVO", "email": "contato@lenovo.com", "obs": ""},
+    ]
+    
+    for empresa in empresas_padrao:
+        inserir_empresa_prioritaria(
+            nome_empresa=empresa["nome"],
+            observacoes=empresa["obs"],
+            email_contato=empresa["email"]
+        )
 
 # Função de teste para o módulo
 if __name__ == "__main__":
