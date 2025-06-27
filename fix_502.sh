@@ -1,158 +1,119 @@
 #!/bin/bash
 
 # =============================================================================
-# Script de Correção Rápida - Erro 502 VPS
+# Script de Correção Rápida - Erro 502
 # n.crisisops - Sistema LGPD
 # =============================================================================
 
-echo "🔧 Corrigindo erro 502 na VPS..."
+echo "🔧 Corrigindo problema do serviço privacy..."
 
-# Verificar se está na VPS
-if [ ! -d "/opt/privacy" ]; then
-    echo "❌ Este script deve ser executado na VPS com /opt/privacy"
-    exit 1
-fi
-
-# Parar serviços
-echo "⏸️  Parando serviços..."
+# Parar serviço atual
 systemctl stop privacy
 
-# Atualizar arquivo web_interface.py com health check
-echo "📝 Atualizando web_interface.py..."
-cat > /tmp/health_route.py << 'EOF'
-@app.route('/health')
-def health_check():
-    """Health check endpoint para load balancer"""
-    return "healthy\n", 200, {'Content-Type': 'text/plain'}
+# Criar configuração Gunicorn mais simples
+echo "⚙️ Corrigindo configuração Gunicorn..."
+cat > /opt/privacy/gunicorn.conf.py << 'EOF'
+# Configuração simplificada para n.crisisops
+bind = "0.0.0.0:5000"
+workers = 1
+worker_class = "sync"
+timeout = 120
+keepalive = 2
+preload_app = False
+reload = False
+daemon = False
+pidfile = "/opt/privacy/gunicorn.pid"
+accesslog = "/opt/privacy/logs/gunicorn_access.log"
+errorlog = "/opt/privacy/logs/gunicorn_error.log"
+loglevel = "debug"
+capture_output = True
 EOF
 
-# Verificar se a rota health já existe
-if ! grep -q "/health" /opt/privacy/app/web_interface.py; then
-    echo "➕ Adicionando rota /health..."
-    # Adicionar antes da linha "if __name__ == '__main__':"
-    sed -i '/if __name__ == '\''__main__'\'':/i\
-@app.route('\''/health'\'')\
-def health_check():\
-    """Health check endpoint para load balancer"""\
-    return "healthy\\n", 200, {'\''Content-Type'\'': '\''text/plain'\''}\
-' /opt/privacy/app/web_interface.py
-fi
+# Corrigir serviço systemd
+echo "🔧 Corrigindo serviço systemd..."
+cat > /etc/systemd/system/privacy.service << 'EOF'
+[Unit]
+Description=n.crisisops LGPD Compliance System
+After=network.target postgresql.service
+Wants=postgresql.service
 
-# Verificar dependências Python
-echo "🐍 Verificando dependências Python..."
-sudo -u privacy /opt/privacy/venv/bin/pip install --upgrade flask gunicorn
+[Service]
+Type=exec
+User=privacy
+Group=privacy
+WorkingDirectory=/opt/privacy/app
+Environment=PATH=/opt/privacy/venv/bin:/usr/local/bin:/usr/bin:/bin
+Environment=DATABASE_URL=postgresql://privacy:ncrisisops_secure_2025@localhost:5432/privacy
+ExecStart=/opt/privacy/venv/bin/gunicorn --config /opt/privacy/gunicorn.conf.py web_interface:app
+ExecReload=/bin/kill -s HUP $MAINPID
+RestartSec=5
+Restart=always
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=privacy
 
-# Corrigir permissões
+[Install]
+WantedBy=multi-user.target
+EOF
+
+# Garantir permissões corretas
 echo "🔐 Corrigindo permissões..."
 chown -R privacy:privacy /opt/privacy
-chmod +x /opt/privacy/venv/bin/python
-chmod +x /opt/privacy/venv/bin/gunicorn
+chmod +x /opt/privacy/venv/bin/*
+chmod 644 /opt/privacy/gunicorn.conf.py
 
-# Testar aplicação manualmente
-echo "🧪 Testando aplicação..."
+# Testar importação Python antes de iniciar
+echo "🐍 Testando importação..."
 cd /opt/privacy/app
-timeout 10s sudo -u privacy /opt/privacy/venv/bin/python -c "
-import web_interface
-print('✅ Importação Python OK')
+sudo -u privacy /opt/privacy/venv/bin/python -c "
+import sys
+sys.path.insert(0, '/opt/privacy/app')
+try:
+    import web_interface
+    print('✅ Importação web_interface OK')
+    app = getattr(web_interface, 'app', None)
+    if app:
+        print('✅ Flask app encontrada')
+    else:
+        print('❌ Flask app não encontrada')
+except Exception as e:
+    print(f'❌ Erro na importação: {e}')
+    import traceback
+    traceback.print_exc()
 "
 
-if [ $? -eq 0 ]; then
-    echo "✅ Aplicação Python funcionando"
-else
-    echo "❌ Erro na aplicação Python - verificar logs"
-    echo "Executando diagnóstico..."
-    sudo -u privacy /opt/privacy/venv/bin/python web_interface.py &
-    PYTHON_PID=$!
-    sleep 5
-    kill $PYTHON_PID 2>/dev/null
-fi
+# Recarregar e iniciar
+echo "🔄 Recarregando systemd..."
+systemctl daemon-reload
+systemctl enable privacy
 
-# Reiniciar PostgreSQL se necessário
-echo "🗄️  Verificando PostgreSQL..."
-if ! systemctl is-active --quiet postgresql; then
-    echo "🔄 Reiniciando PostgreSQL..."
-    systemctl restart postgresql
-    sleep 3
-fi
-
-# Testar conexão ao banco
-sudo -u privacy PGPASSWORD="ncrisisops_secure_2025" psql -h localhost -U privacy privacy -c "SELECT 1;" > /dev/null 2>&1
-if [ $? -eq 0 ]; then
-    echo "✅ PostgreSQL conectando"
-else
-    echo "⚠️  PostgreSQL com problemas - continuando..."
-fi
-
-# Iniciar serviço
 echo "🚀 Iniciando serviço..."
 systemctl start privacy
-sleep 5
 
-# Verificar status
-echo "📊 Verificando status..."
+# Aguardar e verificar
+sleep 10
+
 if systemctl is-active --quiet privacy; then
-    echo "✅ Serviço privacy ativo"
-else
-    echo "❌ Serviço privacy falhou"
-    echo "📋 Logs recentes:"
-    journalctl -u privacy --no-pager -n 20
-fi
-
-# Testar aplicação
-echo "🌐 Testando aplicação..."
-sleep 3
-
-# Teste local
-if curl -s http://localhost:5000/health > /dev/null; then
-    echo "✅ Health check local OK"
-else
-    echo "❌ Health check local falhou"
-    echo "🔍 Tentando diagnóstico..."
+    echo "✅ Serviço ativo"
     
-    # Verificar porta 5000
-    if netstat -tlnp | grep :5000; then
-        echo "✅ Porta 5000 em uso"
+    # Testar health check
+    if curl -s http://localhost:5000/health > /dev/null 2>&1; then
+        echo "✅ Health check OK"
+        echo "🌍 Testando acesso externo..."
+        curl -I http://monster.e-ness.com.br/health 2>/dev/null | head -1
     else
-        echo "❌ Porta 5000 não está sendo usada"
+        echo "❌ Health check falhou"
     fi
-    
-    # Verificar processos
-    if ps aux | grep gunicorn | grep -v grep; then
-        echo "✅ Processos Gunicorn encontrados"
-    else
-        echo "❌ Nenhum processo Gunicorn"
-    fi
-fi
-
-# Verificar Nginx
-echo "🌍 Verificando Nginx..."
-if systemctl is-active --quiet nginx; then
-    echo "✅ Nginx ativo"
-    nginx -t
 else
-    echo "🔄 Reiniciando Nginx..."
-    systemctl restart nginx
-fi
-
-# Teste final
-echo "🎯 Teste final..."
-sleep 2
-
-if curl -s -I http://monster.e-ness.com.br/health | grep -q "200 OK"; then
-    echo "🎉 SUCESSO! Aplicação funcionando em monster.e-ness.com.br"
-elif curl -s -I http://localhost/health | grep -q "200 OK"; then
-    echo "✅ Aplicação funcionando localmente - verificar DNS"
-else
-    echo "❌ Ainda com problemas"
-    echo ""
-    echo "📋 Informações para diagnóstico:"
-    echo "Status dos serviços:"
-    systemctl status privacy --no-pager -l
-    echo ""
-    echo "Últimos logs:"
+    echo "❌ Serviço falhou - verificando logs..."
     journalctl -u privacy --no-pager -n 10
+    
+    echo ""
+    echo "🔍 Testando Gunicorn manualmente..."
+    cd /opt/privacy/app
+    timeout 15s sudo -u privacy /opt/privacy/venv/bin/gunicorn --bind 0.0.0.0:5001 web_interface:app
 fi
 
 echo ""
-echo "🔧 Script de correção concluído"
-echo "📖 Para mais diagnósticos, consulte: DIAGNOSTICO_502.md"
+echo "📊 Status final:"
+systemctl status privacy --no-pager -l
