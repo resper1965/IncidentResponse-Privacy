@@ -430,65 +430,7 @@
             </div>
         </div>
         
-        <!-- Controles de Filtros Avançados -->
-        <div class="controls">
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
-                <h4 style="margin: 0;">Filtros para Relatórios</h4>
-                <button onclick="mostrarFiltrosAvancados()" id="btn-filtros-avancados" style="background: #3b82f6; color: white; border: none; padding: 0.5rem 1rem; border-radius: 6px;">
-                    🔍 Filtros Avançados
-                </button>
-            </div>
-            
-            <!-- Filtros Básicos -->
-            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin-bottom: 1rem;">
-                <div class="control-group">
-                    <label for="filtro-dominio">Filtrar por Domínio:</label>
-                    <select id="filtro-dominio">
-                        <option value="todos">Todos os Domínios</option>
-                    </select>
-                </div>
-                
-                <div class="control-group">
-                    <label for="filtro-empresa">Filtrar por Empresa:</label>
-                    <select id="filtro-empresa">
-                        <option value="todos">Todas as Empresas</option>
-                    </select>
-                </div>
-                
-                <div class="control-group">
-                    <label for="filtro-prioridade">Filtrar por Prioridade:</label>
-                    <select id="filtro-prioridade">
-                        <option value="todos">Todas as Prioridades</option>
-                        <option value="Alta">Alta</option>
-                        <option value="Média">Média</option>
-                        <option value="Baixa">Baixa</option>
-                    </select>
-                </div>
-                
-                <div class="control-group">
-                    <label for="filtro-tipo-dado">Tipo de Dado:</label>
-                    <select id="filtro-tipo-dado">
-                        <option value="todos">Todos os Tipos</option>
-                        <option value="cpf">CPF</option>
-                        <option value="email">Email</option>
-                        <option value="telefone">Telefone</option>
-                        <option value="rg">RG</option>
-                        <option value="nome">Nome</option>
-                    </select>
-                </div>
-            </div>
-            
-            <!-- Botões de Ação -->
-            <div style="display: flex; gap: 1rem; justify-content: flex-end; flex-wrap: wrap;">
-                <button onclick="filtrarDados()" style="background: #10b981; color: white; border: none; padding: 0.5rem 1rem; border-radius: 6px;">
-                    Aplicar Filtros
-                </button>
-                <button onclick="limparFiltros()" style="background: #6b7280; color: white; border: none; padding: 0.5rem 1rem; border-radius: 6px;">
-                    Limpar Filtros
-                </button>
 
-            </div>
-        </div>
         
         <!-- Modal de Filtros Avançados -->
         <div id="modal-filtros-avancados" class="modal" style="display: none;">
@@ -569,6 +511,56 @@
         
         <!-- Aba Resultados LGPD -->
         <div id="aba-resultados" class="tab-content active">
+            <!-- Filtros Integrados -->
+            <div style="background: #f8f9fa; padding: 1rem; border-radius: 6px; margin-bottom: 1rem; border: 1px solid #e1e5e9;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem;">
+                    <span style="font-size: 0.875rem; font-weight: 600; color: #374151;">Filtros</span>
+                    <button onclick="mostrarFiltrosAvancados()" id="btn-filtros-avancados" style="background: none; color: #6b7280; border: 1px solid #d1d5db; padding: 0.25rem 0.5rem; border-radius: 4px; font-size: 0.75rem;">
+                        Avançados
+                    </button>
+                </div>
+                
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 0.75rem; margin-bottom: 0.75rem;">
+                    <div>
+                        <select id="filtro-dominio" style="width: 100%; padding: 0.375rem; border: 1px solid #d1d5db; border-radius: 4px; font-size: 0.75rem;">
+                            <option value="todos">Todos os Domínios</option>
+                        </select>
+                    </div>
+                    <div>
+                        <select id="filtro-empresa" style="width: 100%; padding: 0.375rem; border: 1px solid #d1d5db; border-radius: 4px; font-size: 0.75rem;">
+                            <option value="todos">Todas as Empresas</option>
+                        </select>
+                    </div>
+                    <div>
+                        <select id="filtro-prioridade" style="width: 100%; padding: 0.375rem; border: 1px solid #d1d5db; border-radius: 4px; font-size: 0.75rem;">
+                            <option value="todos">Todas as Prioridades</option>
+                            <option value="Alta">Alta</option>
+                            <option value="Média">Média</option>
+                            <option value="Baixa">Baixa</option>
+                        </select>
+                    </div>
+                    <div>
+                        <select id="filtro-tipo-dado" style="width: 100%; padding: 0.375rem; border: 1px solid #d1d5db; border-radius: 4px; font-size: 0.75rem;">
+                            <option value="todos">Todos os Tipos</option>
+                            <option value="cpf">CPF</option>
+                            <option value="email">Email</option>
+                            <option value="telefone">Telefone</option>
+                            <option value="rg">RG</option>
+                            <option value="nome">Nome</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <div style="display: flex; gap: 0.5rem; justify-content: flex-end;">
+                    <button onclick="filtrarDados()" style="background: #10b981; color: white; border: none; padding: 0.375rem 0.75rem; border-radius: 4px; font-size: 0.75rem;">
+                        Aplicar
+                    </button>
+                    <button onclick="limparFiltros()" style="background: #6b7280; color: white; border: none; padding: 0.375rem 0.75rem; border-radius: 4px; font-size: 0.75rem;">
+                        Limpar
+                    </button>
+                </div>
+            </div>
+            
             <div class="data-table">
                 <div class="table-header">
                     <h3>Resultados da Análise LGPD</h3>
