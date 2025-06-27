@@ -722,6 +722,11 @@ def test_ai_integration():
             'error': str(e)
         }), 500
 
+@app.route('/health')
+def health_check():
+    """Health check endpoint para load balancer"""
+    return "healthy\n", 200, {'Content-Type': 'text/plain'}
+
 if __name__ == '__main__':
     # Inicializar sistemas
     initialize_systems()
