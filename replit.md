@@ -117,12 +117,14 @@ Preferred communication style: Simple, everyday language.
 - **June 27, 2025**: Implemented custom directory selection for complete file tree processing
 - **June 27, 2025**: Implemented three-tier criticality classification (Alta, Média, Baixa) based on LGPD guidelines
 - **June 27, 2025**: Added criticality classification dashboard tab showing data sensitivity categorization
-- **June 27, 2025**: Updated priority search management with BRADESCO as priority 1 (@bradesco.com.br)
 - **June 27, 2025**: Enhanced regex patterns management interface with intelligent structure validation
-- **June 27, 2025**: Implemented priority-based processing logic with enterprise pre-analysis
+- **June 27, 2025**: Implemented priority-based processing logic with configurable enterprise priority table
 - **June 27, 2025**: Created advanced AI processor with intelligent document classification
 - **June 27, 2025**: Added IA Avançada dashboard tab showcasing next evolution steps
 - **June 27, 2025**: Integrated dual-criteria company identification (name + email domain)
+- **June 27, 2025**: Migrated to PostgreSQL database for enterprise scalability
+- **June 27, 2025**: Implemented multi-layer AI processing with GPT-3.5-turbo-1106 and LangChain
+- **June 27, 2025**: Added hybrid priority management with dynamic AI escalation
 
 ## Priority Company Classification
 

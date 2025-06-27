@@ -10,6 +10,8 @@ import pandas as pd
 import json
 from datetime import datetime
 import os
+import asyncio
+from concurrent.futures import ThreadPoolExecutor
 from database import (
     obter_estatisticas,
     obter_resultados_por_dominio,
@@ -28,8 +30,43 @@ from database import (
 )
 from main import processar_arquivos
 from ai_enhanced_processor import processar_arquivos_com_ia
+from database_postgresql import db_manager, initialize_postgresql
+from ai_super_processor import initialize_ai_system, process_document_with_hybrid_ai
 
 app = Flask(__name__)
+executor = ThreadPoolExecutor(max_workers=4)
+
+# Global flag for PostgreSQL availability
+POSTGRESQL_ENABLED = False
+
+def run_async(coro):
+    """Helper to run async functions in Flask context"""
+    loop = asyncio.new_event_loop()
+    asyncio.set_event_loop(loop)
+    try:
+        return loop.run_until_complete(coro)
+    finally:
+        loop.close()
+
+@app.before_first_request
+def initialize_systems():
+    """Initialize both SQLite and PostgreSQL systems"""
+    global POSTGRESQL_ENABLED
+    
+    # Initialize SQLite (existing system)
+    inicializar_banco()
+    
+    # Try to initialize PostgreSQL system
+    try:
+        success = run_async(initialize_postgresql())
+        if success:
+            POSTGRESQL_ENABLED = True
+            print("✅ PostgreSQL system enabled")
+        else:
+            print("⚠️ PostgreSQL system failed, using SQLite only")
+    except Exception as e:
+        print(f"⚠️ PostgreSQL initialization error: {e}")
+        POSTGRESQL_ENABLED = False
 
 @app.route('/')
 def dashboard():
