@@ -171,7 +171,7 @@
             font-size: 0.875rem;
         }
         
-        .priority-high {
+        .priority-alta {
             background: #fef2f2;
             color: #dc2626;
             padding: 0.25rem 0.5rem;
@@ -180,7 +180,16 @@
             font-weight: 500;
         }
         
-        .priority-low {
+        .priority-media {
+            background: #fef3c7;
+            color: #d97706;
+            padding: 0.25rem 0.5rem;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            font-weight: 500;
+        }
+        
+        .priority-baixa {
             background: #f0f9ff;
             color: #0369a1;
             padding: 0.25rem 0.5rem;
@@ -382,6 +391,7 @@
         <!-- Abas de navegação -->
         <div class="tabs">
             <button class="tab-button active" onclick="mostrarAba('resultados')">Resultados LGPD</button>
+            <button class="tab-button" onclick="mostrarAba('criticidade')">Classificação por Criticidade</button>
             <button class="tab-button" onclick="mostrarAba('prioridades')">Prioridade de Busca</button>
             <button class="tab-button" onclick="mostrarAba('regex')">Padrões Regex</button>
         </div>
@@ -415,6 +425,76 @@
                 </table>
             </div>
         </div>
+        </div>
+        
+        <!-- Aba Classificação por Criticidade -->
+        <div id="aba-criticidade" class="tab-content">
+            <div class="data-table">
+                <div class="table-header">
+                    <h3>Classificação por Criticidade - LGPD</h3>
+                    <span>Categorização baseada no nível de sensibilidade dos dados</span>
+                </div>
+                
+                <div style="overflow-x: auto;">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Prioridade</th>
+                                <th>Dados Típicos</th>
+                                <th>Justificativa</th>
+                                <th>Exemplos de Padrões</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>
+                                    <span class="priority-alta">Alta</span>
+                                </td>
+                                <td><strong>CPF, RG, Telefone, E-mail, Data de Nascimento</strong></td>
+                                <td>Dados altamente identificáveis e sensíveis. Permitem identificação direta da pessoa.</td>
+                                <td>
+                                    <code style="font-size: 0.7rem;">123.456.789-01</code><br>
+                                    <code style="font-size: 0.7rem;">joao@email.com</code><br>
+                                    <code style="font-size: 0.7rem;">(11) 99999-9999</code>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <span class="priority-media">Média</span>
+                                </td>
+                                <td><strong>CEP, Placa de Veículo, Endereço IP</strong></td>
+                                <td>Dados que podem compor a identidade, mas isoladamente têm menor impacto.</td>
+                                <td>
+                                    <code style="font-size: 0.7rem;">01234-567</code><br>
+                                    <code style="font-size: 0.7rem;">ABC-1234</code><br>
+                                    <code style="font-size: 0.7rem;">192.168.1.1</code>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <span class="priority-baixa">Baixa</span>
+                                </td>
+                                <td><strong>Nome Completo (sem outros dados associados)</strong></td>
+                                <td>Dados públicos ou que requerem outros dados para causar risco significativo.</td>
+                                <td>
+                                    <code style="font-size: 0.7rem;">João Silva Santos</code><br>
+                                    <code style="font-size: 0.7rem;">Maria Oliveira Costa</code>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                
+                <div style="margin-top: 1.5rem; padding: 1rem; background: #f8f9fa; border-radius: 6px; border-left: 4px solid #3b82f6;">
+                    <h4 style="margin: 0 0 0.5rem 0; color: #1f2937;">Observações Importantes:</h4>
+                    <ul style="margin: 0; padding-left: 1.5rem; color: #4b5563; font-size: 0.875rem;">
+                        <li>A classificação segue as diretrizes da LGPD (Lei Geral de Proteção de Dados)</li>
+                        <li>Dados de <strong>Alta Prioridade</strong> requerem medidas especiais de proteção</li>
+                        <li>A combinação de dados de diferentes prioridades pode elevar o nível de risco</li>
+                        <li>Todos os dados pessoais, independente da prioridade, devem ser tratados com cuidado</li>
+                    </ul>
+                </div>
+            </div>
         </div>
         
         <!-- Aba Prioridade de Busca -->
@@ -615,7 +695,7 @@
                             <td>${item.valor_encontrado}</td>
                             <td>${item.titular_identificado || '-'}</td>
                             <td>
-                                <span class="priority-${item.prioridade === 'Alta' ? 'high' : 'low'}">
+                                <span class="priority-${item.prioridade.toLowerCase()}">
                                     ${item.prioridade}
                                 </span>
                             </td>

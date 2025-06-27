@@ -155,15 +155,29 @@ def inicializar_banco():
 
 def verificar_prioridade(campo):
     """
-    Verifica a prioridade de um campo de dados
+    Verifica a prioridade de um campo de dados baseada na criticidade LGPD
     
     Args:
         campo (str): Nome do campo
         
     Returns:
-        str: 'Alta' ou 'Baixa'
+        str: 'Alta', 'Média' ou 'Baixa'
     """
-    return 'Alta' if campo.lower() in CAMPOS_ALTA_PRIORIDADE else 'Baixa'
+    # Classificação por Criticidade conforme LGPD
+    campos_alta_prioridade = ['cpf', 'rg', 'telefone', 'email', 'data_nascimento']
+    campos_media_prioridade = ['cep', 'placa_veiculo', 'ip']
+    campos_baixa_prioridade = ['nome_completo']
+    
+    campo_lower = campo.lower()
+    
+    if campo_lower in campos_alta_prioridade:
+        return 'Alta'
+    elif campo_lower in campos_media_prioridade:
+        return 'Média'
+    elif campo_lower in campos_baixa_prioridade:
+        return 'Baixa'
+    else:
+        return 'Média'  # Padrão para novos campos
 
 def inserir_dado(arquivo, titular, campo, valor, contexto, prioridade, origem_identificacao):
     """

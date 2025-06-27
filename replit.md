@@ -92,11 +92,13 @@ dados_extraidos (
 
 ### Key Features
 - **Automated Data Subject Identification**: Uses contextual keywords and NLP
-- **Priority Classification**: Automatically flags high-risk personal data
-- **Comprehensive Reporting**: Dashboard with statistics and detailed views
+- **Three-Tier Priority Classification**: Categorizes data as Alta, Média, or Baixa criticality per LGPD
+- **Priority Company Search**: Configurable enterprise ranking system with domain filtering
+- **Comprehensive Reporting**: Dashboard with statistics, Excel export, and detailed compliance views
 - **Brazilian Compliance Focus**: Regex patterns optimized for Brazilian document formats
 - **Multi-format Support**: Handles common business document formats
 - **OCR Integration**: Processes scanned documents and images
+- **Real-time Processing Monitoring**: Progress tracking with file-by-file status updates
 
 ## User Preferences
 
@@ -113,6 +115,10 @@ Preferred communication style: Simple, everyday language.
 - **June 27, 2025**: Updated data pipeline to save results in Excel-compatible format with domain/company filtering
 - **June 27, 2025**: Added real-time processing status monitoring with progress bars and file tracking
 - **June 27, 2025**: Implemented custom directory selection for complete file tree processing
+- **June 27, 2025**: Implemented three-tier criticality classification (Alta, Média, Baixa) based on LGPD guidelines
+- **June 27, 2025**: Added criticality classification dashboard tab showing data sensitivity categorization
+- **June 27, 2025**: Updated priority search management with BRADESCO as priority 1 (@bradesco.com.br)
+- **June 27, 2025**: Enhanced regex patterns management interface with intelligent structure validation
 
 ## Priority Company Classification
 
