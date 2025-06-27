@@ -253,6 +253,41 @@
         .status-details p {
             margin: 0;
         }
+        
+        .tabs {
+            display: flex;
+            border-bottom: 2px solid #e1e5e9;
+            margin-bottom: 2rem;
+        }
+        
+        .tab-button {
+            background: none;
+            border: none;
+            padding: 1rem 2rem;
+            font-size: 0.875rem;
+            font-weight: 500;
+            color: #6b7280;
+            cursor: pointer;
+            border-bottom: 2px solid transparent;
+            transition: all 0.2s;
+        }
+        
+        .tab-button:hover {
+            color: #374151;
+        }
+        
+        .tab-button.active {
+            color: #3b82f6;
+            border-bottom-color: #3b82f6;
+        }
+        
+        .tab-content {
+            display: none;
+        }
+        
+        .tab-content.active {
+            display: block;
+        }
     </style>
 </head>
 <body>
@@ -344,12 +379,20 @@
         <!-- Mensagens de status -->
         <div id="status-messages"></div>
         
-        <!-- Tabela de dados -->
-        <div class="data-table">
-            <div class="table-header">
-                <h3>Resultados da Análise LGPD</h3>
-                <span id="contador-resultados">-</span>
-            </div>
+        <!-- Abas de navegação -->
+        <div class="tabs">
+            <button class="tab-button active" onclick="mostrarAba('resultados')">Resultados LGPD</button>
+            <button class="tab-button" onclick="mostrarAba('prioridades')">Prioridade de Busca</button>
+            <button class="tab-button" onclick="mostrarAba('regex')">Padrões Regex</button>
+        </div>
+        
+        <!-- Aba Resultados LGPD -->
+        <div id="aba-resultados" class="tab-content active">
+            <div class="data-table">
+                <div class="table-header">
+                    <h3>Resultados da Análise LGPD</h3>
+                    <span id="contador-resultados">-</span>
+                </div>
             <div style="overflow-x: auto;">
                 <table>
                     <thead>
@@ -370,6 +413,114 @@
                         </tr>
                     </tbody>
                 </table>
+            </div>
+        </div>
+        </div>
+        
+        <!-- Aba Prioridade de Busca -->
+        <div id="aba-prioridades" class="tab-content">
+            <div class="data-table">
+                <div class="table-header">
+                    <h3>Tabela de Prioridade de Busca</h3>
+                    <div>
+                        <button onclick="mostrarFormPrioridade()">Adicionar Prioridade</button>
+                        <button onclick="carregarPrioridadesPadrao()">Carregar Padrão</button>
+                    </div>
+                </div>
+                
+                <!-- Formulário para adicionar prioridade -->
+                <div id="form-prioridade" style="display: none; padding: 1rem; background: #f8f9fa; border-bottom: 1px solid #e1e5e9;">
+                    <div style="display: grid; grid-template-columns: 1fr 2fr 2fr auto; gap: 1rem; align-items: end;">
+                        <div>
+                            <label>Prioridade:</label>
+                            <input type="number" id="nova-prioridade" placeholder="1" min="1">
+                        </div>
+                        <div>
+                            <label>Nome da Empresa:</label>
+                            <input type="text" id="nova-empresa" placeholder="BRADESCO">
+                        </div>
+                        <div>
+                            <label>Domínio do Email:</label>
+                            <input type="text" id="novo-dominio" placeholder="bradesco.com.br">
+                        </div>
+                        <div>
+                            <button onclick="adicionarPrioridade()">Adicionar</button>
+                            <button onclick="cancelarFormPrioridade()">Cancelar</button>
+                        </div>
+                    </div>
+                </div>
+                
+                <div style="overflow-x: auto;">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Prioridade</th>
+                                <th>Nome da Empresa</th>
+                                <th>Domínio do Email</th>
+                                <th>Data de Criação</th>
+                                <th>Ações</th>
+                            </tr>
+                        </thead>
+                        <tbody id="prioridades-table">
+                            <tr>
+                                <td colspan="5" class="loading">Carregando prioridades...</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Aba Padrões Regex -->
+        <div id="aba-regex" class="tab-content">
+            <div class="data-table">
+                <div class="table-header">
+                    <h3>Padrões Regex - Estrutura Inteligente</h3>
+                    <div>
+                        <button onclick="mostrarFormRegex()">Adicionar Padrão</button>
+                        <button onclick="carregarRegexPadrao()">Carregar Padrão</button>
+                    </div>
+                </div>
+                
+                <!-- Formulário para adicionar regex -->
+                <div id="form-regex" style="display: none; padding: 1rem; background: #f8f9fa; border-bottom: 1px solid #e1e5e9;">
+                    <div style="display: grid; grid-template-columns: 1fr 2fr 1fr auto; gap: 1rem; align-items: end;">
+                        <div>
+                            <label>Nome do Campo:</label>
+                            <input type="text" id="novo-campo" placeholder="nome_completo">
+                        </div>
+                        <div>
+                            <label>Padrão Regex:</label>
+                            <input type="text" id="novo-pattern" placeholder="\b([A-Z][a-z]+(?:\s+[A-Z][a-z]+){1,})\b">
+                        </div>
+                        <div>
+                            <label>Explicação:</label>
+                            <input type="text" id="nova-explicacao" placeholder="Nome composto, mínimo dois nomes">
+                        </div>
+                        <div>
+                            <button onclick="adicionarRegex()">Adicionar</button>
+                            <button onclick="cancelarFormRegex()">Cancelar</button>
+                        </div>
+                    </div>
+                </div>
+                
+                <div style="overflow-x: auto;">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Campo</th>
+                                <th>Padrão Regex</th>
+                                <th>Explicação</th>
+                                <th>Data de Criação</th>
+                            </tr>
+                        </thead>
+                        <tbody id="regex-table">
+                            <tr>
+                                <td colspan="4" class="loading">Carregando padrões...</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
             </div>
         </div>
     </div>
@@ -601,6 +752,251 @@
             })
             .catch(error => {
                 mostrarMensagem('error', 'Erro ao carregar empresas: ' + error.message);
+            });
+        }
+        
+        // === FUNÇÕES DE ABAS ===
+        
+        function mostrarAba(nomeAba) {
+            // Esconder todas as abas
+            document.querySelectorAll('.tab-content').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            
+            // Remover classe ativa de todos os botões
+            document.querySelectorAll('.tab-button').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            
+            // Mostrar aba selecionada
+            document.getElementById('aba-' + nomeAba).classList.add('active');
+            
+            // Adicionar classe ativa ao botão
+            event.target.classList.add('active');
+            
+            // Carregar dados específicos da aba
+            if (nomeAba === 'prioridades') {
+                carregarPrioridades();
+            } else if (nomeAba === 'regex') {
+                carregarRegexPatterns();
+            }
+        }
+        
+        // === FUNÇÕES DE PRIORIDADE DE BUSCA ===
+        
+        function carregarPrioridades() {
+            fetch('/api/prioridades-busca')
+                .then(response => response.json())
+                .then(data => {
+                    const tbody = document.getElementById('prioridades-table');
+                    
+                    if (data.length === 0) {
+                        tbody.innerHTML = '<tr><td colspan="5" class="loading">Nenhuma prioridade encontrada</td></tr>';
+                        return;
+                    }
+                    
+                    tbody.innerHTML = data.map(item => `
+                        <tr>
+                            <td><strong>${item.prioridade}</strong></td>
+                            <td>${item.nome_empresa}</td>
+                            <td>${item.dominio_email}</td>
+                            <td>${new Date(item.data_criacao).toLocaleDateString('pt-BR')}</td>
+                            <td>
+                                <button onclick="removerPrioridade(${item.id})" 
+                                        style="background: #dc2626; color: white; border: none; padding: 0.25rem 0.5rem; border-radius: 4px; font-size: 0.75rem;">
+                                    Remover
+                                </button>
+                            </td>
+                        </tr>
+                    `).join('');
+                })
+                .catch(error => {
+                    console.error('Erro ao carregar prioridades:', error);
+                    document.getElementById('prioridades-table').innerHTML = 
+                        '<tr><td colspan="5" class="loading">Erro ao carregar prioridades</td></tr>';
+                });
+        }
+        
+        function mostrarFormPrioridade() {
+            document.getElementById('form-prioridade').style.display = 'block';
+        }
+        
+        function cancelarFormPrioridade() {
+            document.getElementById('form-prioridade').style.display = 'none';
+            // Limpar campos
+            document.getElementById('nova-prioridade').value = '';
+            document.getElementById('nova-empresa').value = '';
+            document.getElementById('novo-dominio').value = '';
+        }
+        
+        function adicionarPrioridade() {
+            const prioridade = document.getElementById('nova-prioridade').value;
+            const empresa = document.getElementById('nova-empresa').value;
+            const dominio = document.getElementById('novo-dominio').value;
+            
+            if (!prioridade || !empresa || !dominio) {
+                mostrarMensagem('error', 'Todos os campos são obrigatórios');
+                return;
+            }
+            
+            fetch('/api/prioridades-busca', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    prioridade: parseInt(prioridade),
+                    nome_empresa: empresa,
+                    dominio_email: dominio
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.status === 'success') {
+                    mostrarMensagem('success', data.message);
+                    cancelarFormPrioridade();
+                    carregarPrioridades();
+                } else {
+                    mostrarMensagem('error', data.message);
+                }
+            })
+            .catch(error => {
+                mostrarMensagem('error', 'Erro ao adicionar prioridade: ' + error.message);
+            });
+        }
+        
+        function removerPrioridade(id) {
+            if (!confirm('Tem certeza que deseja remover esta prioridade?')) {
+                return;
+            }
+            
+            fetch('/api/prioridades-busca/' + id, {
+                method: 'DELETE'
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.status === 'success') {
+                    mostrarMensagem('success', data.message);
+                    carregarPrioridades();
+                } else {
+                    mostrarMensagem('error', data.message);
+                }
+            })
+            .catch(error => {
+                mostrarMensagem('error', 'Erro ao remover prioridade: ' + error.message);
+            });
+        }
+        
+        function carregarPrioridadesPadrao() {
+            fetch('/api/carregar-prioridades-padrao', {
+                method: 'POST'
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.status === 'success') {
+                    mostrarMensagem('success', data.message);
+                    carregarPrioridades();
+                } else {
+                    mostrarMensagem('error', data.message);
+                }
+            })
+            .catch(error => {
+                mostrarMensagem('error', 'Erro ao carregar prioridades padrão: ' + error.message);
+            });
+        }
+        
+        // === FUNÇÕES DE REGEX PATTERNS ===
+        
+        function carregarRegexPatterns() {
+            fetch('/api/regex-patterns')
+                .then(response => response.json())
+                .then(data => {
+                    const tbody = document.getElementById('regex-table');
+                    
+                    if (data.length === 0) {
+                        tbody.innerHTML = '<tr><td colspan="4" class="loading">Nenhum padrão encontrado</td></tr>';
+                        return;
+                    }
+                    
+                    tbody.innerHTML = data.map(item => `
+                        <tr>
+                            <td><strong>${item.nome_campo}</strong></td>
+                            <td><code style="background: #f1f5f9; padding: 0.25rem; border-radius: 4px; font-size: 0.75rem;">${item.pattern_regex}</code></td>
+                            <td>${item.explicacao}</td>
+                            <td>${new Date(item.data_criacao).toLocaleDateString('pt-BR')}</td>
+                        </tr>
+                    `).join('');
+                })
+                .catch(error => {
+                    console.error('Erro ao carregar padrões regex:', error);
+                    document.getElementById('regex-table').innerHTML = 
+                        '<tr><td colspan="4" class="loading">Erro ao carregar padrões</td></tr>';
+                });
+        }
+        
+        function mostrarFormRegex() {
+            document.getElementById('form-regex').style.display = 'block';
+        }
+        
+        function cancelarFormRegex() {
+            document.getElementById('form-regex').style.display = 'none';
+            // Limpar campos
+            document.getElementById('novo-campo').value = '';
+            document.getElementById('novo-pattern').value = '';
+            document.getElementById('nova-explicacao').value = '';
+        }
+        
+        function adicionarRegex() {
+            const campo = document.getElementById('novo-campo').value;
+            const pattern = document.getElementById('novo-pattern').value;
+            const explicacao = document.getElementById('nova-explicacao').value;
+            
+            if (!campo || !pattern) {
+                mostrarMensagem('error', 'Nome do campo e padrão são obrigatórios');
+                return;
+            }
+            
+            fetch('/api/regex-patterns', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    nome_campo: campo,
+                    pattern_regex: pattern,
+                    explicacao: explicacao
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.status === 'success') {
+                    mostrarMensagem('success', data.message);
+                    cancelarFormRegex();
+                    carregarRegexPatterns();
+                } else {
+                    mostrarMensagem('error', data.message);
+                }
+            })
+            .catch(error => {
+                mostrarMensagem('error', 'Erro ao adicionar padrão: ' + error.message);
+            });
+        }
+        
+        function carregarRegexPadrao() {
+            fetch('/api/carregar-regex-padrao', {
+                method: 'POST'
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.status === 'success') {
+                    mostrarMensagem('success', data.message);
+                    carregarRegexPatterns();
+                } else {
+                    mostrarMensagem('error', data.message);
+                }
+            })
+            .catch(error => {
+                mostrarMensagem('error', 'Erro ao carregar padrões padrão: ' + error.message);
             });
         }
     </script>
