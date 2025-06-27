@@ -26,9 +26,9 @@ from database import (
     carregar_prioridades_padrao,
     obter_regex_patterns,
     inserir_regex_pattern,
-    carregar_regex_padrao,
-    get_database_connection
+    carregar_regex_padrao
 )
+import sqlite3
 from main import processar_arquivos
 from ai_enhanced_processor import processar_arquivos_com_ia
 from database_postgresql import db_manager, initialize_postgresql
@@ -470,24 +470,25 @@ def api_relatorio_completo():
         ws_dashboard = wb.active
         ws_dashboard.title = "Dashboard Executivo"
         
-        # Criar dashboard visual
-        criar_dashboard_executivo(ws_dashboard, dados_filtrados)
+        # Criar dashboard executivo simples
+        ws_dashboard.cell(row=1, column=1, value="Dashboard Executivo LGPD").font = Font(bold=True, size=16)
+        ws_dashboard.cell(row=3, column=1, value=f"Total de Registros: {len(dados_filtrados)}")
+        ws_dashboard.cell(row=4, column=1, value=f"Data do Relatório: {datetime.now().strftime('%d/%m/%Y %H:%M')}")
         
-        # Aba 2: Dados Detalhados
+        # Aba 2: Dados Detalhados  
         ws_detalhes = wb.create_sheet(title="Dados Detalhados")
-        criar_planilha_dados_detalhados(ws_detalhes, dados_filtrados)
+        cabecalhos = ['ID', 'Arquivo', 'Titular', 'Tipo', 'Valor', 'Contexto', 'Prioridade']
+        for col, cabecalho in enumerate(cabecalhos, 1):
+            ws_detalhes.cell(row=1, column=col, value=cabecalho).font = Font(bold=True)
         
-        # Aba 3: Análise de Riscos
-        ws_riscos = wb.create_sheet(title="Análise de Riscos")
-        criar_analise_riscos(ws_riscos, dados_filtrados)
-        
-        # Aba 4: Conformidade LGPD
-        ws_conformidade = wb.create_sheet(title="Conformidade LGPD")
-        criar_analise_conformidade(ws_conformidade, dados_filtrados)
-        
-        # Aba 5: Plano de Ação
-        ws_acoes = wb.create_sheet(title="Plano de Ação")
-        criar_plano_acao(ws_acoes, dados_filtrados)
+        for row_idx, dado in enumerate(dados_filtrados, 2):
+            ws_detalhes.cell(row=row_idx, column=1, value=dado.get('id', ''))
+            ws_detalhes.cell(row=row_idx, column=2, value=dado.get('arquivo', ''))
+            ws_detalhes.cell(row=row_idx, column=3, value=dado.get('titular', ''))
+            ws_detalhes.cell(row=row_idx, column=4, value=dado.get('campo', ''))
+            ws_detalhes.cell(row=row_idx, column=5, value=dado.get('valor', ''))
+            ws_detalhes.cell(row=row_idx, column=6, value=dado.get('contexto', ''))
+            ws_detalhes.cell(row=row_idx, column=7, value=dado.get('prioridade', ''))
         
         # Salvar arquivo
         buffer = io.BytesIO()
@@ -508,7 +509,7 @@ def api_relatorio_completo():
 
 def aplicar_filtros_relatorio(filtros):
     """Aplica filtros aos dados para relatórios"""
-    conn = get_database_connection()
+    conn = sqlite3.connect('lgpd_data.db')
     cursor = conn.cursor()
     
     # Query base

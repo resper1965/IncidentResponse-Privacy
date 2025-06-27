@@ -3,8 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>LGPD Compliance Dashboard</title>
+    <title>n.crisisops - Módulo de Privacidade</title>
     <style>
+        @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&display=swap');
+        
         * {
             margin: 0;
             padding: 0;
@@ -12,7 +14,7 @@
         }
         
         body {
-            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            font-family: 'Montserrat', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
             background-color: #f8f9fa;
             color: #1a1d29;
             line-height: 1.6;
@@ -28,11 +30,34 @@
             font-size: 1.5rem;
             font-weight: 600;
             margin-bottom: 0.25rem;
+            color: #1a1d29;
+        }
+        
+        .header h1 .brand-dot {
+            color: #00ade08;
         }
         
         .header p {
             color: #6b7280;
             font-size: 0.875rem;
+        }
+        
+        .footer {
+            background: white;
+            border-top: 1px solid #e1e5e9;
+            padding: 1rem 2rem;
+            text-align: center;
+            margin-top: 2rem;
+        }
+        
+        .footer p {
+            color: #6b7280;
+            font-size: 0.75rem;
+            font-weight: 400;
+        }
+        
+        .footer .ness-brand {
+            color: #00ade08;
         }
         
         .container {
@@ -301,8 +326,8 @@
 </head>
 <body>
     <div class="header">
-        <h1>LGPD Compliance Dashboard</h1>
-        <p>Monitoramento e análise de dados pessoais em conformidade com a LGPD</p>
+        <h1>n<span class="brand-dot">.</span>crisisops - Módulo de Privacidade</h1>
+        <p>Gestão de resposta a incidentes - Monitoramento e análise de dados pessoais em conformidade com a LGPD</p>
     </div>
     
     <div class="container">
@@ -1674,6 +1699,18 @@
                 mostrarMensagem('error', 'Erro ao carregar padrões padrão: ' + error.message);
             });
         }
+        
+        // Fix missing function for directory browser
+        function abrirNavegadorDiretorios() {
+            // Simple directory input - user can type path directly
+            const input = document.getElementById('diretorio-arquivos');
+            input.focus();
+            mostrarMensagem('info', 'Digite o caminho do diretório (ex: data, /caminho/completo)');
+        }
     </script>
+    
+    <div class="footer">
+        <p>powered by <span class="ness-brand">ness.</span></p>
+    </div>
 </body>
 </html>
