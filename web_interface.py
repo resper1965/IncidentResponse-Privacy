@@ -31,7 +31,7 @@ from database import (
 from main import processar_arquivos
 from ai_enhanced_processor import processar_arquivos_com_ia
 from database_postgresql import db_manager, initialize_postgresql
-from ai_super_processor import initialize_ai_system, process_document_with_hybrid_ai
+from ai_processor_simplified import initialize_simple_ai_system, process_document_simple_ai
 
 app = Flask(__name__)
 executor = ThreadPoolExecutor(max_workers=4)
@@ -59,6 +59,8 @@ def initialize_systems():
     try:
         success = run_async(initialize_postgresql())
         if success:
+            # Also initialize the AI system
+            run_async(initialize_simple_ai_system())
             POSTGRESQL_ENABLED = True
             print("✅ PostgreSQL system enabled")
         else:
