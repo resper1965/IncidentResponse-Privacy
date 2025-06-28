@@ -135,12 +135,17 @@ source venv/bin/activate
 # Atualizar pip
 pip install --upgrade pip setuptools wheel
 
-echo "📦 Instalando dependências Python..."
+echo "📦 Instalando pip-tools para gerenciamento de dependências..."
+pip install pip-tools
 
-# Instalar dependências
+echo "📦 Gerando lockfile de dependências..."
+pip-compile requirements.in --output-file production-requirements.txt --resolver=backtracking
+
+echo "📦 Instalando dependências Python com versões compatíveis..."
 pip install --upgrade pip
-pip install -r production-requirements.txt || {
-    echo "⚠️ Algumas dependências falharam, continuando..."
+pip-sync production-requirements.txt || {
+    echo "⚠️ Tentando instalação direta como fallback..."
+    pip install -r production-requirements.txt
 }
 
 # Verificar instalações críticas
