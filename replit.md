@@ -126,6 +126,7 @@ The application follows a sophisticated multi-layer pipeline architecture with e
 - June 27, 2025. VPS dependency fixes - Updated production-requirements.txt to eml-parser==2.0.0, created comprehensive dependency installation scripts for VPS deployment, resolved PyMuPDF import issues
 - June 28, 2025. Production deployment with SSL - Created complete deploy-production.sh with Let's Encrypt SSL automation, staging environment setup, PostgreSQL production credentials (privacy_user:Lgpd2025#Privacy), and comprehensive security headers
 - June 28, 2025. Final production system - Resolved LangChain dependency conflicts, streamlined deployment to single script, cleaned repository structure, system ready for VPS deployment with automatic SSL
+- June 28, 2025. LangChain dependency resolution - Fixed critical dependency conflicts by updating production-requirements.txt to use compatible version ranges (>=0.2.2,<0.3.0), resolved PyMuPDF import issues, system fully operational with web interface running on port 5000
 
 ## User Preferences
 
