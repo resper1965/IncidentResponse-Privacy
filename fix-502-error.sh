@@ -149,6 +149,9 @@ echo "🧪 Testing app directly..."
 chown privacy:privacy /opt/privacy/test_app.py
 sudo -u privacy /opt/privacy/venv/bin/python3 /opt/privacy/test_app.py
 
+# Deactivate virtual environment if active
+deactivate 2>/dev/null || true
+
 # Reload and start services
 systemctl daemon-reload
 systemctl start privacy
