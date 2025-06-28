@@ -1,0 +1,55 @@
+root@monster:/opt/privacy# journalctl -xeu privacy.service
+░░ 
+░░ The process' exit code is 'exited' and its exit status is 203.
+Jun 28 22:08:15 monster systemd[1]: privacy.service: Failed with result 'exit-code'.
+░░ Subject: Unit failed
+░░ Defined-By: systemd
+░░ Support: http://www.ubuntu.com/support
+░░ 
+░░ The unit privacy.service has entered the 'failed' state with result 'exit-code'.
+Jun 28 22:08:15 monster systemd[1]: Failed to start privacy.service - n.crisisops Privacy LGPD System.
+░░ Subject: A start job for unit privacy.service has failed
+░░ Defined-By: systemd
+░░ Support: http://www.ubuntu.com/support
+░░ 
+░░ A start job for unit privacy.service has finished with a failure.
+░░ 
+░░ The job identifier is 5309647 and the job result is failed.
+Jun 28 22:08:26 monster systemd[1]: privacy.service: Scheduled restart job, restart counter is at 1625.
+░░ Subject: Automatic restarting of a unit has been scheduled
+░░ Defined-By: systemd
+░░ Support: http://www.ubuntu.com/support
+░░ 
+░░ Automatic restarting of the unit privacy.service has been scheduled, as the result for
+░░ the configured Restart= setting for the unit.
+Jun 28 22:08:26 monster systemd[1]: Starting privacy.service - n.crisisops Privacy LGPD System...
+░░ Subject: A start job for unit privacy.service has begun execution
+░░ Defined-By: systemd
+░░ Support: http://www.ubuntu.com/support
+░░ 
+░░ A start job for unit privacy.service has begun execution.
+░░ 
+░░ The job identifier is 5310449.
+Jun 28 22:08:26 monster systemd[1]: privacy.service: Main process exited, code=exited, status=203/EXEC
+░░ Subject: Unit process exited
+░░ Defined-By: systemd
+░░ Support: http://www.ubuntu.com/support
+░░ 
+░░ An ExecStart= process belonging to unit privacy.service has exited.
+░░ 
+░░ The process' exit code is 'exited' and its exit status is 203.
+Jun 28 22:08:26 monster systemd[1]: privacy.service: Failed with result 'exit-code'.
+░░ Subject: Unit failed
+░░ Defined-By: systemd
+░░ Support: http://www.ubuntu.com/support
+░░ 
+░░ The unit privacy.service has entered the 'failed' state with result 'exit-code'.
+Jun 28 22:08:26 monster systemd[1]: Failed to start privacy.service - n.crisisops Privacy LGPD System.
+░░ Subject: A start job for unit privacy.service has failed
+░░ Defined-By: systemd
+░░ Support: http://www.ubuntu.com/support
+░░ 
+░░ A start job for unit privacy.service has finished with a failure.
+░░ 
+░░ The job identifier is 5310449 and the job result is failed.
+lines 7350-7402/7402 (END)
