@@ -142,23 +142,67 @@ def api_processar():
         data = request.get_json()
         diretorio = data.get('diretorio', 'data') if data else 'data'
         
+        print(f"🔍 Iniciando processamento do diretório: {diretorio}")
+        
         # Validar se o diretório existe
         if not os.path.exists(diretorio):
             return jsonify({'status': 'error', 'message': f'Diretório não encontrado: {diretorio}'})
         
-        # Usar processador avançado com IA se disponível
+        # Contar arquivos primeiro
+        from file_scanner import encontrar_arquivos
+        arquivos = encontrar_arquivos(diretorio)
+        print(f"📁 Encontrados {len(arquivos)} arquivos para processar")
+        
+        if len(arquivos) == 0:
+            return jsonify({'status': 'error', 'message': 'Nenhum arquivo encontrado no diretório'})
+        
+        # Mostrar alguns exemplos de arquivos encontrados
+        for i, arquivo in enumerate(arquivos[:3]):
+            print(f"  📄 {i+1}. {arquivo}")
+        if len(arquivos) > 3:
+            print(f"  ... e mais {len(arquivos) - 3} arquivos")
+        
+        # Tentar processamento com IA se PostgreSQL ativo
+        if POSTGRESQL_ENABLED:
+            try:
+                print("🤖 Usando processamento com IA...")
+                estatisticas = processar_arquivos_com_ia(diretorio)
+                print(f"✅ Processamento IA concluído: {estatisticas}")
+                
+                # Verificar quantos dados foram encontrados
+                dados_encontrados = estatisticas.get('dados_encontrados', 0)
+                print(f"💾 {dados_encontrados} dados pessoais encontrados")
+                
+                return jsonify({
+                    'status': 'success', 
+                    'message': f'Processamento concluído: {len(arquivos)} arquivos analisados, {dados_encontrados} dados pessoais encontrados',
+                    'estatisticas': estatisticas
+                })
+            except Exception as e:
+                print(f"❌ Erro no processamento IA: {e}")
+                # Continuar para fallback básico
+        
+        # Processamento básico usando SQLite
+        print("📊 Usando processamento básico (SQLite)...")
         try:
-            estatisticas = processar_arquivos_com_ia(diretorio)
+            processar_arquivos(diretorio)
+            
+            # Verificar quantos dados foram salvos
+            stats = obter_estatisticas()
+            dados_salvos = stats.get('total_dados', 0)
+            print(f"💾 {dados_salvos} dados salvos no banco SQLite")
+            
             return jsonify({
                 'status': 'success', 
-                'message': 'Processamento com IA concluído',
-                'estatisticas': estatisticas
+                'message': f'Processamento concluído: {len(arquivos)} arquivos analisados, {dados_salvos} dados pessoais encontrados',
+                'dados_encontrados': dados_salvos
             })
         except Exception as e:
-            # Fallback para processador básico
-            processar_arquivos(diretorio)
-            return jsonify({'status': 'success', 'message': 'Processamento básico concluído'})
+            print(f"❌ Erro no processamento básico: {e}")
+            return jsonify({'status': 'error', 'message': f'Erro no processamento: {str(e)}'})
+            
     except Exception as e:
+        print(f"❌ Erro geral no processamento: {e}")
         return jsonify({'status': 'error', 'message': str(e)})
 
 @app.route('/api/status-processamento')
