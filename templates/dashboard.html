@@ -1833,6 +1833,222 @@
                     mostrarMensagem('error', 'Erro ao validar diretório: ' + error.message);
                 });
         }
+        
+        // === GERENCIAMENTO DE INCIDENTES ===
+        
+        function mostrarFormIncidente() {
+            document.getElementById('form-incidente').style.display = 'block';
+            document.getElementById('btn-novo-incidente').style.display = 'none';
+            
+            // Definir data atual como padrão
+            const hoje = new Date().toISOString().split('T')[0];
+            document.getElementById('incidente-data').value = hoje;
+        }
+        
+        function cancelarFormIncidente() {
+            document.getElementById('form-incidente').style.display = 'none';
+            document.getElementById('btn-novo-incidente').style.display = 'block';
+            
+            // Limpar campos
+            document.getElementById('incidente-empresa').value = '';
+            document.getElementById('incidente-data').value = '';
+            document.getElementById('incidente-tipo').value = '';
+            document.getElementById('incidente-descricao').value = '';
+        }
+        
+        function salvarIncidente() {
+            const empresa = document.getElementById('incidente-empresa').value.trim();
+            const dataIncidente = document.getElementById('incidente-data').value;
+            const tipoIncidente = document.getElementById('incidente-tipo').value;
+            const descricao = document.getElementById('incidente-descricao').value.trim();
+            
+            if (!empresa || !tipoIncidente || !descricao) {
+                mostrarMensagem('error', 'Empresa, tipo e descrição são obrigatórios');
+                return;
+            }
+            
+            const dados = {
+                empresa: empresa,
+                data_incidente: dataIncidente,
+                tipo_incidente: tipoIncidente,
+                descricao: descricao
+            };
+            
+            fetch('/api/incidentes', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(dados)
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.status === 'success') {
+                    mostrarMensagem('success', data.message);
+                    cancelarFormIncidente();
+                    carregarIncidentes();
+                } else {
+                    mostrarMensagem('error', data.message);
+                }
+            })
+            .catch(error => {
+                mostrarMensagem('error', 'Erro ao salvar incidente: ' + error.message);
+            });
+        }
+        
+        function carregarIncidentes() {
+            fetch('/api/incidentes')
+                .then(response => response.json())
+                .then(data => {
+                    const tbody = document.getElementById('incidentes-table');
+                    
+                    if (!Array.isArray(data) || data.length === 0) {
+                        tbody.innerHTML = '<tr><td colspan="7" class="loading">Nenhum incidente encontrado</td></tr>';
+                        return;
+                    }
+                    
+                    tbody.innerHTML = data.map(item => `
+                        <tr>
+                            <td>${item.id}</td>
+                            <td>${item.empresa}</td>
+                            <td>${item.data_incidente}</td>
+                            <td>
+                                <span style="padding: 0.25rem 0.5rem; border-radius: 4px; font-size: 0.75rem; background: #fef3c7; color: #92400e;">
+                                    ${item.tipo_incidente}
+                                </span>
+                            </td>
+                            <td style="max-width: 200px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;" title="${item.descricao}">
+                                ${item.descricao}
+                            </td>
+                            <td>
+                                <select onchange="atualizarStatusIncidente(${item.id}, this.value)" style="padding: 0.25rem; font-size: 0.75rem; border: 1px solid #d1d5db; border-radius: 4px;">
+                                    <option value="Aberto" ${item.status === 'Aberto' ? 'selected' : ''}>Aberto</option>
+                                    <option value="Em Análise" ${item.status === 'Em Análise' ? 'selected' : ''}>Em Análise</option>
+                                    <option value="Em Resolução" ${item.status === 'Em Resolução' ? 'selected' : ''}>Em Resolução</option>
+                                    <option value="Resolvido" ${item.status === 'Resolvido' ? 'selected' : ''}>Resolvido</option>
+                                    <option value="Fechado" ${item.status === 'Fechado' ? 'selected' : ''}>Fechado</option>
+                                </select>
+                            </td>
+                            <td>
+                                <button onclick="visualizarIncidente(${item.id})" style="background: #3b82f6; color: white; border: none; padding: 0.25rem 0.5rem; border-radius: 4px; font-size: 0.75rem; cursor: pointer;">
+                                    Ver
+                                </button>
+                            </td>
+                        </tr>
+                    `).join('');
+                })
+                .catch(error => {
+                    console.error('Erro ao carregar incidentes:', error);
+                    document.getElementById('incidentes-table').innerHTML = 
+                        '<tr><td colspan="7" class="loading">Erro ao carregar incidentes</td></tr>';
+                });
+        }
+        
+        function atualizarStatusIncidente(incidentId, novoStatus) {
+            fetch(`/api/incidentes/${incidentId}`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ status: novoStatus })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.status === 'success') {
+                    mostrarMensagem('success', 'Status atualizado com sucesso');
+                } else {
+                    mostrarMensagem('error', data.message);
+                    carregarIncidentes(); // Recarregar para reverter mudança
+                }
+            })
+            .catch(error => {
+                mostrarMensagem('error', 'Erro ao atualizar status: ' + error.message);
+                carregarIncidentes(); // Recarregar para reverter mudança
+            });
+        }
+        
+        function visualizarIncidente(incidentId) {
+            mostrarMensagem('info', `Visualizando incidente ID: ${incidentId}`);
+            // Implementar modal de visualização detalhada se necessário
+        }
+        
+        // Melhorar feedback do processamento
+        function processarArquivos() {
+            const diretorio = document.getElementById('diretorio-arquivos').value.trim();
+            
+            if (!diretorio) {
+                mostrarMensagem('error', 'Por favor, selecione um diretório para processamento');
+                return;
+            }
+            
+            // Mostrar status de processamento com animação
+            const statusDiv = document.getElementById('status-processamento');
+            statusDiv.style.display = 'block';
+            
+            const btnProcessar = document.getElementById('btn-processar');
+            btnProcessar.disabled = true;
+            btnProcessar.textContent = 'Processando...';
+            btnProcessar.style.background = '#6b7280';
+            
+            // Reset progress
+            document.getElementById('progress-fill').style.width = '0%';
+            document.getElementById('arquivo-atual').textContent = 'Iniciando análise de arquivos...';
+            document.getElementById('contador-progresso').textContent = 'Preparando processamento...';
+            
+            // Simular progresso enquanto processa
+            let progresso = 0;
+            const progressoInterval = setInterval(() => {
+                progresso += Math.random() * 10;
+                if (progresso > 90) progresso = 90;
+                
+                document.getElementById('progress-fill').style.width = progresso + '%';
+                document.getElementById('arquivo-atual').textContent = `Processando arquivos do diretório: ${diretorio}`;
+                document.getElementById('contador-progresso').textContent = `Progresso: ${Math.round(progresso)}%`;
+            }, 1000);
+            
+            fetch('/api/processar', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    diretorio: diretorio
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                clearInterval(progressoInterval);
+                
+                // Completar progresso
+                document.getElementById('progress-fill').style.width = '100%';
+                document.getElementById('contador-progresso').textContent = 'Processamento concluído!';
+                
+                setTimeout(() => {
+                    statusDiv.style.display = 'none';
+                    btnProcessar.disabled = false;
+                    btnProcessar.textContent = '🔍 Processar Toda Árvore de Arquivos';
+                    btnProcessar.style.background = '#10b981';
+                    
+                    if (data.status === 'success') {
+                        mostrarMensagem('success', `Processamento concluído! ${data.message}`);
+                        // Recarregar dados das abas
+                        carregarDados();
+                        carregarEstatisticas();
+                    } else {
+                        mostrarMensagem('error', data.message);
+                    }
+                }, 2000);
+            })
+            .catch(error => {
+                clearInterval(progressoInterval);
+                statusDiv.style.display = 'none';
+                btnProcessar.disabled = false;
+                btnProcessar.textContent = '🔍 Processar Toda Árvore de Arquivos';
+                btnProcessar.style.background = '#10b981';
+                
+                mostrarMensagem('error', 'Erro no processamento: ' + error.message);
+            });
+        }
     </script>
     
     <div class="footer">

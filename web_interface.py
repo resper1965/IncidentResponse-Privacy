@@ -414,6 +414,219 @@ def api_validar_diretorio():
             'message': f'Erro ao validar diretório: {str(e)}'
         })
 
+# === GERENCIAMENTO DE INCIDENTES ===
+
+@app.route('/api/incidentes', methods=['GET'])
+def api_listar_incidentes():
+    """API para listar incidentes"""
+    try:
+        if POSTGRESQL_ENABLED:
+            conn = run_async(db_manager.get_connection())
+            results = run_async(conn.fetch('''
+                SELECT id, empresa, data_incidente, tipo_incidente, descricao, 
+                       status, criado_em, atualizado_em
+                FROM incidentes_lgpd 
+                ORDER BY criado_em DESC
+            '''))
+            run_async(conn.close())
+            
+            incidentes = []
+            for row in results:
+                incidentes.append({
+                    'id': row['id'],
+                    'empresa': row['empresa'],
+                    'data_incidente': row['data_incidente'].strftime('%Y-%m-%d') if row['data_incidente'] else '',
+                    'tipo_incidente': row['tipo_incidente'],
+                    'descricao': row['descricao'],
+                    'status': row['status'],
+                    'criado_em': row['criado_em'].strftime('%Y-%m-%d %H:%M') if row['criado_em'] else '',
+                    'atualizado_em': row['atualizado_em'].strftime('%Y-%m-%d %H:%M') if row['atualizado_em'] else ''
+                })
+            
+            return jsonify(incidentes)
+        else:
+            # Fallback para SQLite
+            from database import obter_conexao
+            conn = obter_conexao()
+            cursor = conn.cursor()
+            
+            # Criar tabela se não existir
+            cursor.execute('''
+                CREATE TABLE IF NOT EXISTS incidentes_lgpd (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    empresa TEXT NOT NULL,
+                    data_incidente DATE,
+                    tipo_incidente TEXT NOT NULL,
+                    descricao TEXT,
+                    status TEXT DEFAULT 'Aberto',
+                    criado_em TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                    atualizado_em TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+                )
+            ''')
+            
+            cursor.execute('''
+                SELECT id, empresa, data_incidente, tipo_incidente, descricao, 
+                       status, criado_em, atualizado_em
+                FROM incidentes_lgpd 
+                ORDER BY criado_em DESC
+            ''')
+            
+            results = cursor.fetchall()
+            conn.close()
+            
+            incidentes = []
+            for row in results:
+                incidentes.append({
+                    'id': row[0],
+                    'empresa': row[1],
+                    'data_incidente': row[2] or '',
+                    'tipo_incidente': row[3],
+                    'descricao': row[4],
+                    'status': row[5],
+                    'criado_em': row[6] or '',
+                    'atualizado_em': row[7] or ''
+                })
+            
+            return jsonify(incidentes)
+            
+    except Exception as e:
+        return jsonify({'status': 'error', 'message': f'Erro ao listar incidentes: {str(e)}'})
+
+@app.route('/api/incidentes', methods=['POST'])
+def api_criar_incidente():
+    """API para criar novo incidente"""
+    try:
+        data = request.get_json()
+        empresa = data.get('empresa', '').strip()
+        data_incidente = data.get('data_incidente', '')
+        tipo_incidente = data.get('tipo_incidente', '').strip()
+        descricao = data.get('descricao', '').strip()
+        
+        if not all([empresa, tipo_incidente, descricao]):
+            return jsonify({
+                'status': 'error', 
+                'message': 'Empresa, tipo e descrição são obrigatórios'
+            })
+        
+        if POSTGRESQL_ENABLED:
+            conn = run_async(db_manager.get_connection())
+            
+            # Criar tabela se não existir
+            await_result = run_async(conn.execute('''
+                CREATE TABLE IF NOT EXISTS incidentes_lgpd (
+                    id SERIAL PRIMARY KEY,
+                    empresa VARCHAR(255) NOT NULL,
+                    data_incidente DATE,
+                    tipo_incidente VARCHAR(100) NOT NULL,
+                    descricao TEXT,
+                    status VARCHAR(50) DEFAULT 'Aberto',
+                    criado_em TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                    atualizado_em TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+                )
+            '''))
+            
+            # Inserir incidente
+            incident_id = run_async(conn.fetchval('''
+                INSERT INTO incidentes_lgpd (empresa, data_incidente, tipo_incidente, descricao)
+                VALUES ($1, $2, $3, $4)
+                RETURNING id
+            ''', empresa, data_incidente or None, tipo_incidente, descricao))
+            
+            run_async(conn.close())
+            
+            return jsonify({
+                'status': 'success',
+                'message': 'Incidente registrado com sucesso',
+                'id': incident_id
+            })
+        else:
+            # Fallback para SQLite
+            from database import obter_conexao
+            conn = obter_conexao()
+            cursor = conn.cursor()
+            
+            # Criar tabela se não existir
+            cursor.execute('''
+                CREATE TABLE IF NOT EXISTS incidentes_lgpd (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    empresa TEXT NOT NULL,
+                    data_incidente DATE,
+                    tipo_incidente TEXT NOT NULL,
+                    descricao TEXT,
+                    status TEXT DEFAULT 'Aberto',
+                    criado_em TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                    atualizado_em TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+                )
+            ''')
+            
+            # Inserir incidente
+            cursor.execute('''
+                INSERT INTO incidentes_lgpd (empresa, data_incidente, tipo_incidente, descricao)
+                VALUES (?, ?, ?, ?)
+            ''', (empresa, data_incidente or None, tipo_incidente, descricao))
+            
+            incident_id = cursor.lastrowid
+            conn.commit()
+            conn.close()
+            
+            return jsonify({
+                'status': 'success',
+                'message': 'Incidente registrado com sucesso',
+                'id': incident_id
+            })
+            
+    except Exception as e:
+        return jsonify({
+            'status': 'error', 
+            'message': f'Erro ao criar incidente: {str(e)}'
+        })
+
+@app.route('/api/incidentes/<int:incident_id>', methods=['PUT'])
+def api_atualizar_incidente(incident_id):
+    """API para atualizar status de incidente"""
+    try:
+        data = request.get_json()
+        status = data.get('status', '').strip()
+        
+        if not status:
+            return jsonify({'status': 'error', 'message': 'Status é obrigatório'})
+        
+        if POSTGRESQL_ENABLED:
+            conn = run_async(db_manager.get_connection())
+            
+            run_async(conn.execute('''
+                UPDATE incidentes_lgpd 
+                SET status = $1, atualizado_em = CURRENT_TIMESTAMP
+                WHERE id = $2
+            ''', status, incident_id))
+            
+            run_async(conn.close())
+        else:
+            # Fallback para SQLite
+            from database import obter_conexao
+            conn = obter_conexao()
+            cursor = conn.cursor()
+            
+            cursor.execute('''
+                UPDATE incidentes_lgpd 
+                SET status = ?, atualizado_em = CURRENT_TIMESTAMP
+                WHERE id = ?
+            ''', (status, incident_id))
+            
+            conn.commit()
+            conn.close()
+        
+        return jsonify({
+            'status': 'success',
+            'message': 'Status do incidente atualizado'
+        })
+        
+    except Exception as e:
+        return jsonify({
+            'status': 'error',
+            'message': f'Erro ao atualizar incidente: {str(e)}'
+        })
+
 # New AI-powered endpoints for PostgreSQL system
 @app.route('/api/ai-metrics')
 def api_ai_metrics():
