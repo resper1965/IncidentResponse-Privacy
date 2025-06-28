@@ -128,6 +128,7 @@ The application follows a sophisticated multi-layer pipeline architecture with e
 - June 28, 2025. Final production system - Resolved LangChain dependency conflicts, streamlined deployment to single script, cleaned repository structure, system ready for VPS deployment with automatic SSL
 - June 28, 2025. LangChain dependency resolution - Fixed critical dependency conflicts by updating production-requirements.txt to use compatible version ranges (>=0.2.2,<0.3.0), resolved PyMuPDF import issues, system fully operational with web interface running on port 5000
 - June 28, 2025. VPS deployment optimization - Updated LangChain dependencies to use precise version ranges (langchain-core>=0.2.43,<0.3.0, langchain>=0.2.17,<0.3.0) for VPS compatibility, added requirements.in for pip-tools management, enhanced deployment script with lockfile generation
+- June 28, 2025. VPS dependency conflict resolution - Created fix-vps-dependencies.sh script to resolve langchain-text-splitters version conflict (0.2.17-0.3.0 range unavailable), updated to use available versions (>=0.2.4), provided fallback installation method for production deployment
 
 ## User Preferences
 
