@@ -14,7 +14,14 @@ import yaml
 from pathlib import Path
 import pandas as pd
 import pdfplumber
-import fitz  # PyMuPDF
+try:
+    import fitz  # PyMuPDF
+except ImportError:
+    try:
+        import pymupdf as fitz
+    except ImportError:
+        fitz = None
+        print("Warning: PyMuPDF not available, PDF processing limited")
 from docx import Document
 from pptx import Presentation
 import extract_msg
@@ -160,7 +167,10 @@ def extrair_texto_pdf_ocr(caminho_arquivo):
     Extrai texto de PDF usando OCR (pytesseract)
     """
     try:
-        import fitz  # PyMuPDF - fallback se não tiver, usar pdfplumber
+        # PyMuPDF already imported with fallback handling
+        if fitz is None:
+            print("PyMuPDF not available, using pdfplumber for OCR")
+            return extrair_texto_pdf(caminho_arquivo)
         
         texto_ocr = ""
         doc = fitz.open(caminho_arquivo)
