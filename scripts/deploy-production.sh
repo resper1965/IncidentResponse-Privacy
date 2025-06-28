@@ -137,8 +137,12 @@ pip install --upgrade pip setuptools wheel
 
 echo "📦 Instalando dependências Python..."
 
-# Instalar dependências do production-requirements.txt
-pip install -r production-requirements.txt
+# Instalar dependências (tentar versão completa, fallback para simples)
+pip install --upgrade pip
+if ! pip install -r production-requirements.txt; then
+    echo "⚠️ Conflito nas dependências, usando versão simplificada..."
+    pip install -r production-requirements-simple.txt
+fi
 
 # Verificar instalações críticas
 echo "🧪 Verificando instalações..."
