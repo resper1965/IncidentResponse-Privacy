@@ -1,0 +1,60 @@
+2 files changed, 131 insertions(+), 2 deletions(-)
+ create mode 100755 test-status-vps.sh
+[ 2025-06-28 16:31:54 ] 🔐 Ajustando permissões em scripts/*.sh...
+[ 2025-06-28 16:31:54 ] ✅ Permissões ajustadas para todos os .sh em 'scripts'.
+[ 2025-06-28 16:31:54 ] 🎉 Tudo concluído!
+root@monster:/opt/privacy# cd /opt/privacy
+chmod +x test-status-vps.sh
+./test-status-vps.sh
+🔍 Verificando status do sistema LGPD...
+📋 Verificando .env...
+✅ Arquivo .env encontrado
+✅ URL PostgreSQL configurada
+✅ Chave OpenAI configurada
+
+🗄️  Testando PostgreSQL...
+✅ PostgreSQL: 10 prioridades carregadas
+
+📦 Verificando dependências...
+✅ asyncpg instalado
+✅ openai instalado
+
+🌐 Testando API de status...
+{
+    "ai_system_enabled": false,
+    "postgresql_enabled": false,
+    "sqlite_enabled": true,
+    "timestamp": "2025-06-28T16:32:08.359718"
+}
+
+📊 Últimos logs do serviço:
+Jun 28 16:23:54 monster gunicorn[909846]: 📄 Arquivo encontrado: /opt/privacy/data/Columbiait/Compras e Importação/Importação e Exportação/Processos Importação/126 - Embraer -  VEBA043/2º lote/ExtratoDI CT 12947.pdf
+Jun 28 16:23:54 monster gunicorn[909846]: 📄 Arquivo encontrado: /opt/privacy/data/Columbiait/Compras e Importação/Importação e Exportação/Processos Importação/126 - Embraer -  VEBA043/2º lote/Numerario ct 12947-22 complementar - VEBA043.pdf
+Jun 28 16:23:54 monster gunicorn[909846]: 📄 Arquivo encontrado: /opt/privacy/data/Columbiait/Compras e Importação/Importação e Exportação/Processos Importação/126 - Embraer -  VEBA043/2º lote/INV 760002076.pdf
+Jun 28 16:23:54 monster gunicorn[909846]: 📄 Arquivo encontrado: /opt/privacy/data/Columbiait/Compras e Importação/Importação e Exportação/Processos Importação/126 - Embraer -  VEBA043/2º lote/Numerario_12947.pdf
+Jun 28 16:23:54 monster gunicorn[909846]: 📄 Arquivo encontrado: /opt/privacy/data/Columbiait/Compras e Importação/Importação e Exportação/Processos Importação/126 - Embraer -  VEBA043/2º lote/75337.pdf
+Jun 28 16:23:54 monster gunicorn[909846]: 📄 Arquivo encontrado: /opt/privacy/data/Columbiait/Compras e Importação/Importação e Exportação/Processos Importação/126 - Embraer -  VEBA043/2º lote/760002076 HW.pdf
+Jun 28 16:23:54 monster gunicorn[909846]: 📄 Arquivo encontrado: /opt/privacy/data/Columbiait/Compras e Importação/Importação e Exportação/Processos Importação/126 - Embraer -  VEBA043/2º lote/RD CT 12947-22 SO 353002755 PO 3350HW.pdf
+Jun 28 16:23:54 monster gunicorn[909846]: 📄 Arquivo encontrado: /opt/privacy/data/Columbiait/Compras e Importação/Importação e Exportação/Processos Importação/126 - Embraer -  VEBA043/2º lote/DANFE 009258 - VEBA043 - 2º LOTE.pdf
+Jun 28 16:23:54 monster gunicorn[909846]: 📄 Arquivo encontrado: /opt/privacy/data/Columbiait/Compras e Importação/Importação e Exportação/Processos Importação/126 - Embraer -  VEBA043/2º lote/20221205093853.pdf
+Jun 28 16:23:54 monster gunicorn[909846]: 📄 Arquivo encontrado: /opt/privacy/data/Columbiait/Compras e Importação/Importação e Exportação/Processos Importação/126 - Embraer -  VEBA043/3º lote/Numerario_12982.pdf
+
+🔧 Status do serviço privacy:
+active
+✅ Serviço ativo
+enabled
+✅ Serviço habilitado
+
+🌐 Acesse o dashboard: https://monster.e-ness.com.br
+
+Se PostgreSQL ou IA estão inativos:
+1. Execute: ./fix-simple-vps.sh
+2. Adicione chave OpenAI ao .env
+3. Reinicie: systemctl restart privacy
+root@monster:/opt/privacy# cat .env
+DATABASE_URL=postgresql://privacy_user:Lgpd2025%23Privacy@localhost:5432/privacy_db
+OPENAI_API_KEY=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
+FLASK_ENV=production
+FLASK_DEBUG=False
+root@monster:/opt/privacy# systemctl restart privacy
+root@monster:/opt/privacy# 

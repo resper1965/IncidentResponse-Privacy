@@ -686,18 +686,50 @@ def api_search_priorities_pg():
 def api_system_status():
     """API para status dos sistemas"""
     
-    # Testar PostgreSQL em tempo real
+    # Verificar PostgreSQL usando método síncrono compatível com Flask
     postgres_status = False
     ai_status = False
     
     try:
-        # Verificar se consegue conectar ao PostgreSQL
-        success = run_async(test_postgresql_connection())
-        postgres_status = success
+        # Teste PostgreSQL usando psycopg2 (síncrono) em vez de asyncpg
+        import psycopg2
+        from urllib.parse import unquote_plus
+        
+        # Decodificar senha do .env
+        database_url = os.getenv('DATABASE_URL', '')
+        if 'postgresql://' in database_url:
+            # Extrair partes da URL
+            conn_parts = database_url.replace('postgresql://', '').split('@')
+            if len(conn_parts) == 2:
+                user_pass = conn_parts[0].split(':')
+                host_db = conn_parts[1].split('/')
+                if len(user_pass) == 2 and len(host_db) == 2:
+                    user = user_pass[0]
+                    password = unquote_plus(user_pass[1])  # Decodificar %23 para #
+                    host_port = host_db[0].split(':')
+                    host = host_port[0]
+                    port = host_port[1] if len(host_port) > 1 else '5432'
+                    database = host_db[1]
+                    
+                    # Testar conexão
+                    conn = psycopg2.connect(
+                        host=host,
+                        port=port,
+                        database=database,
+                        user=user,
+                        password=password
+                    )
+                    cursor = conn.cursor()
+                    cursor.execute('SELECT COUNT(*) FROM search_priorities')
+                    count = cursor.fetchone()[0]
+                    cursor.close()
+                    conn.close()
+                    postgres_status = True
+                    print(f"✅ PostgreSQL status check: {count} priorities")
         
         # Verificar se OpenAI está configurado
         openai_key = os.getenv('OPENAI_API_KEY')
-        ai_status = bool(openai_key and openai_key.strip() and openai_key != '')
+        ai_status = bool(openai_key and openai_key.strip() and len(openai_key) > 20)
         
     except Exception as e:
         print(f"Erro ao verificar status: {e}")
