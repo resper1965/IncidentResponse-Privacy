@@ -1,0 +1,59 @@
+systemctl reload nginx
+Saving debug log to /var/log/letsencrypt/letsencrypt.log
+Certificate not yet due for renewal
+
+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Certificate not yet due for renewal; no action taken.
+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+root@monster:/opt/ncrisis# journalctl -u privacy -n 50 --no-pager
+Jun 28 14:45:58 monster gunicorn[876883]:   File "/opt/privacy/venv/lib/python3.12/site-packages/gunicorn/app/wsgiapp.py", line 48, in load_wsgiapp
+Jun 28 14:45:58 monster gunicorn[876883]:     return util.import_app(self.app_uri)
+Jun 28 14:45:58 monster gunicorn[876883]:            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Jun 28 14:45:58 monster gunicorn[876883]:   File "/opt/privacy/venv/lib/python3.12/site-packages/gunicorn/util.py", line 371, in import_app
+Jun 28 14:45:58 monster gunicorn[876883]:     mod = importlib.import_module(module)
+Jun 28 14:45:58 monster gunicorn[876883]:           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Jun 28 14:45:58 monster gunicorn[876883]:   File "/usr/lib/python3.12/importlib/__init__.py", line 90, in import_module
+Jun 28 14:45:58 monster gunicorn[876883]:     return _bootstrap._gcd_import(name[level:], package, level)
+Jun 28 14:45:58 monster gunicorn[876883]:            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Jun 28 14:45:58 monster gunicorn[876883]:   File "<frozen importlib._bootstrap>", line 1387, in _gcd_import
+Jun 28 14:45:58 monster gunicorn[876883]:   File "<frozen importlib._bootstrap>", line 1360, in _find_and_load
+Jun 28 14:45:58 monster gunicorn[876883]:   File "<frozen importlib._bootstrap>", line 1331, in _find_and_load_unlocked
+Jun 28 14:45:58 monster gunicorn[876883]:   File "<frozen importlib._bootstrap>", line 935, in _load_unlocked
+Jun 28 14:45:58 monster gunicorn[876883]:   File "<frozen importlib._bootstrap_external>", line 995, in exec_module
+Jun 28 14:45:58 monster gunicorn[876883]:   File "<frozen importlib._bootstrap>", line 488, in _call_with_frames_removed
+Jun 28 14:45:58 monster gunicorn[876883]:   File "/opt/privacy/web_interface.py", line 34, in <module>
+Jun 28 14:45:58 monster gunicorn[876883]:     from database_postgresql import db_manager, initialize_postgresql
+Jun 28 14:45:58 monster gunicorn[876883]:   File "/opt/privacy/database_postgresql.py", line 10, in <module>
+Jun 28 14:45:58 monster gunicorn[876883]:     import asyncpg
+Jun 28 14:45:58 monster gunicorn[876883]: ModuleNotFoundError: No module named 'asyncpg'
+Jun 28 14:45:58 monster systemd[1]: privacy.service: Main process exited, code=exited, status=1/FAILURE
+Jun 28 14:45:58 monster systemd[1]: privacy.service: Failed with result 'exit-code'.
+Jun 28 14:45:58 monster systemd[1]: privacy.service: Consumed 2.361s CPU time.
+Jun 28 14:46:04 monster systemd[1]: privacy.service: Scheduled restart job, restart counter is at 10119.
+Jun 28 14:46:04 monster systemd[1]: Starting privacy.service - n.crisisops LGPD Privacy Module...
+Jun 28 14:46:04 monster systemd[1]: Started privacy.service - n.crisisops LGPD Privacy Module.
+Jun 28 14:52:36 monster systemd[1]: Stopping privacy.service - n.crisisops LGPD Privacy Module...
+Jun 28 14:52:37 monster systemd[1]: privacy.service: Deactivated successfully.
+Jun 28 14:52:37 monster systemd[1]: Stopped privacy.service - n.crisisops LGPD Privacy Module.
+Jun 28 14:52:37 monster systemd[1]: privacy.service: Consumed 5.180s CPU time, 160.5M memory peak, 0B memory swap peak.
+Jun 28 14:52:37 monster systemd[1]: Starting privacy.service - n.crisisops LGPD Privacy Module...
+Jun 28 14:52:37 monster systemd[1]: Started privacy.service - n.crisisops LGPD Privacy Module.
+Jun 28 14:54:41 monster systemd[1]: Stopping privacy.service - n.crisisops LGPD Privacy Module...
+Jun 28 14:54:42 monster systemd[1]: privacy.service: Deactivated successfully.
+Jun 28 14:54:42 monster systemd[1]: Stopped privacy.service - n.crisisops LGPD Privacy Module.
+Jun 28 14:54:42 monster systemd[1]: privacy.service: Consumed 4.973s CPU time, 145.8M memory peak, 0B memory swap peak.
+Jun 28 14:54:43 monster systemd[1]: Starting privacy.service - n.crisisops LGPD Privacy Module...
+Jun 28 14:54:43 monster systemd[1]: Started privacy.service - n.crisisops LGPD Privacy Module.
+Jun 28 14:57:09 monster systemd[1]: Stopping privacy.service - n.crisisops LGPD Privacy Module...
+Jun 28 14:57:10 monster systemd[1]: privacy.service: Deactivated successfully.
+Jun 28 14:57:10 monster systemd[1]: Stopped privacy.service - n.crisisops LGPD Privacy Module.
+Jun 28 14:57:10 monster systemd[1]: privacy.service: Consumed 4.946s CPU time, 145.8M memory peak, 0B memory swap peak.
+Jun 28 14:57:10 monster systemd[1]: Starting privacy.service - n.crisisops LGPD Privacy Module...
+Jun 28 14:57:10 monster systemd[1]: Started privacy.service - n.crisisops LGPD Privacy Module.
+Jun 28 15:14:43 monster systemd[1]: Stopping privacy.service - n.crisisops LGPD Privacy Module...
+Jun 28 15:14:45 monster systemd[1]: privacy.service: Deactivated successfully.
+Jun 28 15:14:45 monster systemd[1]: Stopped privacy.service - n.crisisops LGPD Privacy Module.
+Jun 28 15:14:45 monster systemd[1]: privacy.service: Consumed 5.353s CPU time, 152.7M memory peak, 0B memory swap peak.
+Jun 28 15:18:48 monster systemd[1]: Starting privacy.service - n.crisisops Privacy LGPD System...
+Jun 28 15:18:48 monster systemd[1]: Started privacy.service - n.crisisops Privacy LGPD System.
+root@monster:/opt/ncrisis# 
