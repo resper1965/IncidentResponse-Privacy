@@ -182,8 +182,16 @@ def populate_database():
         ]
         
         # Inserir prioridades empresariais
+        cursor.execute("DELETE FROM prioridades_busca")  # Limpar dados antigos
         for prioridade, empresa, dominio in priorities:
-            database.inserir_prioridade_busca(prioridade, empresa, dominio)
+            cursor.execute(
+                "INSERT INTO prioridades_busca (prioridade, nome_empresa, dominio_email) VALUES (?, ?, ?)",
+                (prioridade, empresa, dominio)
+            )
+        
+        # Salvar mudanças
+        conn.commit()
+        conn.close()
         
         print('✅ Dados iniciais carregados com sucesso')
         print(f'✅ {len(patterns)} padrões regex inseridos')
