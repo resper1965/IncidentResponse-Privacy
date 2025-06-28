@@ -2,6 +2,7 @@
 
 # Script completo para corrigir aplicação no VPS
 # Execute no diretório /opt/privacy como root
+# GitHub: https://github.com/resper1965/IncidentResponse-Privacy.git
 
 echo "🔧 Corrigindo aplicação LGPD no VPS..."
 
