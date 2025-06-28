@@ -49,6 +49,24 @@ def run_async(coro):
     finally:
         loop.close()
 
+async def test_postgresql_connection():
+    """Teste de conexão PostgreSQL em tempo real"""
+    try:
+        import asyncpg
+        from urllib.parse import quote_plus
+        
+        # Usar mesma lógica do database_postgresql.py
+        password = quote_plus('Lgpd2025#Privacy')
+        conn_string = f'postgresql://privacy_user:{password}@localhost:5432/privacy_db'
+        
+        conn = await asyncpg.connect(conn_string)
+        await conn.execute('SELECT 1')
+        await conn.close()
+        return True
+    except Exception as e:
+        print(f"Erro conexão PostgreSQL: {e}")
+        return False
+
 def initialize_systems():
     """Initialize both SQLite and PostgreSQL systems"""
     global POSTGRESQL_ENABLED
@@ -667,10 +685,27 @@ def api_search_priorities_pg():
 @app.route('/api/system-status')
 def api_system_status():
     """API para status dos sistemas"""
+    
+    # Testar PostgreSQL em tempo real
+    postgres_status = False
+    ai_status = False
+    
+    try:
+        # Verificar se consegue conectar ao PostgreSQL
+        success = run_async(test_postgresql_connection())
+        postgres_status = success
+        
+        # Verificar se OpenAI está configurado
+        openai_key = os.getenv('OPENAI_API_KEY')
+        ai_status = bool(openai_key and openai_key.strip() and openai_key != '')
+        
+    except Exception as e:
+        print(f"Erro ao verificar status: {e}")
+    
     return jsonify({
         'sqlite_enabled': True,
-        'postgresql_enabled': POSTGRESQL_ENABLED,
-        'ai_system_enabled': POSTGRESQL_ENABLED,
+        'postgresql_enabled': postgres_status,
+        'ai_system_enabled': ai_status,
         'timestamp': datetime.now().isoformat()
     })
 
