@@ -12,6 +12,15 @@ from datetime import datetime
 import os
 import asyncio
 from concurrent.futures import ThreadPoolExecutor
+
+# Carregar variáveis de ambiente do arquivo .env
+try:
+    from dotenv import load_dotenv
+    load_dotenv('.env')
+    print("✅ Arquivo .env carregado")
+except ImportError:
+    print("⚠️ python-dotenv não encontrado, usando variáveis do sistema")
+    pass
 from database import (
     obter_estatisticas,
     obter_resultados_por_dominio,
