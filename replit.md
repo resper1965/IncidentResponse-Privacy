@@ -126,7 +126,20 @@ The application follows a modular, multi-layer architecture designed for scalabi
 
 ## Changelog
 
-- June 28, 2025. Initial setup
+- June 27, 2025. Initial setup
+- June 27, 2025. Repository organization - Created professional structure with scripts/ and docs/ folders, comprehensive README.md, and resolved production deployment dependencies
+- June 27, 2025. Git repository optimization - Resolved 172MB pack history issue, removed large files, optimized .gitignore, maintained VPS link
+- June 27, 2025. VPS dependency fixes - Updated production-requirements.txt to eml-parser==2.0.0, created comprehensive dependency installation scripts for VPS deployment, resolved PyMuPDF import issues
+- June 28, 2025. Production deployment with SSL - Created complete deploy-production.sh with Let's Encrypt SSL automation, staging environment setup, PostgreSQL production credentials (privacy_user:Lgpd2025#Privacy), and comprehensive security headers
+- June 28, 2025. Final production system - Resolved LangChain dependency conflicts, streamlined deployment to single script, cleaned repository structure, system ready for VPS deployment with automatic SSL
+- June 28, 2025. LangChain dependency resolution - Fixed critical dependency conflicts by updating production-requirements.txt to use compatible version ranges (>=0.2.2,<0.3.0), resolved PyMuPDF import issues, system fully operational with web interface running on port 5000
+- June 28, 2025. VPS deployment optimization - Updated LangChain dependencies to use precise version ranges (langchain-core>=0.2.43,<0.3.0, langchain>=0.2.17,<0.3.0) for VPS compatibility, added requirements.in for pip-tools management, enhanced deployment script with lockfile generation
+- June 28, 2025. VPS dependency conflict resolution - Created fix-vps-dependencies.sh script to resolve langchain-text-splitters version conflict (0.2.17-0.3.0 range unavailable), updated to use available versions (>=0.2.4), provided fallback installation method for production deployment
+- June 28, 2025. Definitive VPS deployment solution - Created deploy-vps-final.sh that installs LangChain dependencies in specific order to avoid pip resolution conflicts, uses tested compatible versions (langchain-core==0.2.43, langchain-text-splitters==0.2.4), bypasses pip-tools completely, includes complete SSL automation and production configuration
+- June 28, 2025. Complete production deployment - Resolved missing asyncpg module causing Gunicorn worker failures, fixed Nginx port conflicts with other sites, created single deploy-complete.sh script that installs all dependencies (PyMuPDF, asyncpg, psycopg2-binary), configures services correctly, and establishes full HTTPS functionality at monster.e-ness.com.br
+- June 28, 2025. Database merge and priority system - Successfully applied database merge consolidating 10 enterprise search priorities in PostgreSQL, created setup_priorities.py and merge_database.py scripts for priority management, system now fully unified on PostgreSQL with automatic client prioritization for LGPD compliance processing
+- June 28, 2025. Complete VPS navigation system - Resolved PostgreSQL connection issues with URL-encoded passwords, implemented full directory navigation API endpoints (/api/listar-diretorios, /api/validar-diretorio), added interactive file browser with JavaScript frontend, created comprehensive VPS configuration scripts (fix-postgresql-vps.sh, update-env-vps.sh, test-navigation-vps.sh), system ready for production with complete file tree navigation at monster.e-ness.com.br
+- June 28, 2025. System status verification and repository cleanup - Fixed PostgreSQL status verification using psycopg2 synchronous connections instead of asyncpg for Flask compatibility, added python-dotenv for proper .env loading, cleaned repository by removing duplicate files, temporary scripts, and cached files, organized deployment scripts in scripts/ folder, system fully operational with clean codebase
 
 ## User Preferences
 
