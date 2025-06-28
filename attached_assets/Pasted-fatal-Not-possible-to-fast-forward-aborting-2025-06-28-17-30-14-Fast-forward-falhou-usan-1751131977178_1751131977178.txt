@@ -1,0 +1,41 @@
+fatal: Not possible to fast-forward, aborting.
+[ 2025-06-28 17:30:14 ] ⚠️ Fast-forward falhou, usando merge --no-ff fallback
+Merge made by the 'ort' strategy.
+ scripts/atualizar-app.sh   | 65 +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+ scripts/update-app-only.sh | 40 ++++++++++++++++++++++++++++++++++++++++
+ 2 files changed, 105 insertions(+)
+ create mode 100644 scripts/atualizar-app.sh
+ create mode 100644 scripts/update-app-only.sh
+[ 2025-06-28 17:30:16 ] ↩️ Reaplicando stash
+On branch main
+Changes not staged for commit:
+  (use "git add <file>..." to update what will be committed)
+  (use "git restore <file>..." to discard changes in working directory)
+        modified:   install-vps-simples.sh
+
+Untracked files:
+  (use "git add <file>..." to include in what will be committed)
+        s.sh
+        sync-incidentresponse.sh
+
+no changes added to commit (use "git add" and/or "git commit -a")
+Dropped refs/stash@{0} (44428204554bb57c7bc50ac19590a4e64e395e2d)
+[ 2025-06-28 17:30:16 ] 📋 Status final do repositório:
+ M install-vps-simples.sh
+?? s.sh
+?? sync-incidentresponse.sh
+[ 2025-06-28 17:30:16 ] 🎉 Sincronização concluída!
+root@monster:/opt/privacy# cd /opt/privacy
+systemctl stop privacy
+cp web_interface.py web_interface.py.backup
+wget -O web_interface.py https://raw.githubusercontent.com/seu-repo/lgpd-system/main/web_interface.py
+systemctl start privacy
+--2025-06-28 17:32:02--  https://raw.githubusercontent.com/seu-repo/lgpd-system/main/web_interface.py
+Resolving raw.githubusercontent.com (raw.githubusercontent.com)... 2606:50c0:8002::154, 2606:50c0:8001::154, 2606:50c0:8003::154, ...
+Connecting to raw.githubusercontent.com (raw.githubusercontent.com)|2606:50c0:8002::154|:443... connected.
+HTTP request sent, awaiting response... 404 Not Found
+2025-06-28 17:32:02 ERROR 404: Not Found.
+
+Job for privacy.service failed because the control process exited with error code.
+See "systemctl status privacy.service" and "journalctl -xeu privacy.service" for details.
+root@monster:/opt/privacy# 
