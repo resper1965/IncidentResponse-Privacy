@@ -149,8 +149,8 @@ def api_processar():
             return jsonify({'status': 'error', 'message': f'Diretório não encontrado: {diretorio}'})
         
         # Contar arquivos primeiro
-        from file_scanner import encontrar_arquivos
-        arquivos = encontrar_arquivos(diretorio)
+        from file_scanner import listar_arquivos_recursivos
+        arquivos = listar_arquivos_recursivos(diretorio)
         print(f"📁 Encontrados {len(arquivos)} arquivos para processar")
         
         if len(arquivos) == 0:
