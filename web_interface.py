@@ -728,8 +728,9 @@ def api_system_status():
                     print(f"✅ PostgreSQL status check: {count} priorities")
         
         # Verificar se OpenAI está configurado
-        openai_key = os.getenv('OPENAI_API_KEY')
-        ai_status = bool(openai_key and openai_key.strip() and len(openai_key) > 20)
+        openai_key = os.getenv('OPENAI_API_KEY', '').strip()
+        ai_status = bool(openai_key and openai_key != '' and openai_key.startswith('sk-'))
+        print(f"✅ OpenAI key check: {'Valid' if ai_status else 'Invalid'} (length: {len(openai_key)})")
         
     except Exception as e:
         print(f"Erro ao verificar status: {e}")
