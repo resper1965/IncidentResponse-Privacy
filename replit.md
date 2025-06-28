@@ -131,6 +131,7 @@ The application follows a sophisticated multi-layer pipeline architecture with e
 - June 28, 2025. VPS dependency conflict resolution - Created fix-vps-dependencies.sh script to resolve langchain-text-splitters version conflict (0.2.17-0.3.0 range unavailable), updated to use available versions (>=0.2.4), provided fallback installation method for production deployment
 - June 28, 2025. Definitive VPS deployment solution - Created deploy-vps-final.sh that installs LangChain dependencies in specific order to avoid pip resolution conflicts, uses tested compatible versions (langchain-core==0.2.43, langchain-text-splitters==0.2.4), bypasses pip-tools completely, includes complete SSL automation and production configuration
 - June 28, 2025. Complete production deployment - Resolved missing asyncpg module causing Gunicorn worker failures, fixed Nginx port conflicts with other sites, created single deploy-complete.sh script that installs all dependencies (PyMuPDF, asyncpg, psycopg2-binary), configures services correctly, and establishes full HTTPS functionality at monster.e-ness.com.br
+- June 28, 2025. Database merge and priority system - Successfully applied database merge consolidating 10 enterprise search priorities in PostgreSQL, created setup_priorities.py and merge_database.py scripts for priority management, system now fully unified on PostgreSQL with automatic client prioritization for LGPD compliance processing
 
 ## User Preferences
 
