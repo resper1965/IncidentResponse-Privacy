@@ -1719,12 +1719,119 @@
             });
         }
         
-        // Fix missing function for directory browser
+        // === NAVEGAÇÃO DE DIRETÓRIOS ===
+        
+        let caminhoAtual = 'data';
+        
         function abrirNavegadorDiretorios() {
-            // Simple directory input - user can type path directly
-            const input = document.getElementById('diretorio-arquivos');
-            input.focus();
-            mostrarMensagem('info', 'Digite o caminho do diretório (ex: data, /caminho/completo)');
+            document.getElementById('navegador-diretorios').style.display = 'block';
+            carregarDiretorios(caminhoAtual);
+        }
+        
+        function fecharNavegadorDiretorios() {
+            document.getElementById('navegador-diretorios').style.display = 'none';
+        }
+        
+        function carregarDiretorios(caminho) {
+            caminhoAtual = caminho;
+            document.getElementById('caminho-atual').textContent = caminho;
+            document.getElementById('lista-diretorios').innerHTML = '<div class="loading">Carregando...</div>';
+            
+            fetch(`/api/listar-diretorios?caminho=${encodeURIComponent(caminho)}`)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.status === 'success') {
+                        renderizarDiretorios(data.items, data.caminho_atual);
+                    } else {
+                        document.getElementById('lista-diretorios').innerHTML = 
+                            `<div class="error">Erro: ${data.message}</div>`;
+                    }
+                })
+                .catch(error => {
+                    document.getElementById('lista-diretorios').innerHTML = 
+                        `<div class="error">Erro ao carregar: ${error.message}</div>`;
+                });
+        }
+        
+        function renderizarDiretorios(items, caminhoAtualizado) {
+            caminhoAtual = caminhoAtualizado;
+            document.getElementById('caminho-atual').textContent = caminhoAtual;
+            
+            let html = '';
+            
+            // Botão para voltar (se não estiver na raiz)
+            if (caminhoAtual !== '.' && caminhoAtual !== 'data') {
+                const parentPath = caminhoAtual.split('/').slice(0, -1).join('/') || '.';
+                html += `
+                    <div class="directory-item" onclick="carregarDiretorios('${parentPath}')" style="cursor: pointer; padding: 0.5rem; border-bottom: 1px solid #e5e7eb; display: flex; align-items: center; gap: 0.5rem;">
+                        <span style="font-size: 1.2rem;">⬆️</span>
+                        <span style="font-weight: 500;">..</span>
+                        <span style="color: #6b7280; font-size: 0.875rem;">Voltar</span>
+                    </div>
+                `;
+            }
+            
+            // Listar diretórios primeiro
+            const diretorios = items.filter(item => item.tipo === 'diretorio');
+            const arquivos = items.filter(item => item.tipo === 'arquivo');
+            
+            diretorios.forEach(item => {
+                html += `
+                    <div class="directory-item" onclick="carregarDiretorios('${item.caminho}')" style="cursor: pointer; padding: 0.5rem; border-bottom: 1px solid #e5e7eb; display: flex; align-items: center; gap: 0.5rem; justify-content: space-between;">
+                        <div style="display: flex; align-items: center; gap: 0.5rem;">
+                            <span style="font-size: 1.2rem;">📁</span>
+                            <span style="font-weight: 500;">${item.nome}</span>
+                        </div>
+                        <span style="color: #6b7280; font-size: 0.75rem;">${item.arquivos_suportados} arquivos</span>
+                    </div>
+                `;
+            });
+            
+            // Listar arquivos (apenas para visualização)
+            arquivos.slice(0, 10).forEach(item => {
+                const tamanhoMB = (item.tamanho / (1024 * 1024)).toFixed(2);
+                html += `
+                    <div class="file-item" style="padding: 0.5rem; border-bottom: 1px solid #e5e7eb; display: flex; align-items: center; gap: 0.5rem; justify-content: space-between; opacity: 0.7;">
+                        <div style="display: flex; align-items: center; gap: 0.5rem;">
+                            <span style="font-size: 1rem;">📄</span>
+                            <span>${item.nome}</span>
+                        </div>
+                        <span style="color: #6b7280; font-size: 0.75rem;">${tamanhoMB} MB</span>
+                    </div>
+                `;
+            });
+            
+            if (arquivos.length > 10) {
+                html += `
+                    <div style="padding: 0.5rem; text-align: center; color: #6b7280; font-size: 0.875rem;">
+                        ... e mais ${arquivos.length - 10} arquivos
+                    </div>
+                `;
+            }
+            
+            if (items.length === 0) {
+                html = '<div style="padding: 1rem; text-align: center; color: #6b7280;">Diretório vazio</div>';
+            }
+            
+            document.getElementById('lista-diretorios').innerHTML = html;
+        }
+        
+        function confirmarDiretorio() {
+            // Validar se o diretório é válido antes de confirmar
+            fetch(`/api/validar-diretorio?caminho=${encodeURIComponent(caminhoAtual)}`)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.valido) {
+                        document.getElementById('diretorio-arquivos').value = caminhoAtual;
+                        fecharNavegadorDiretorios();
+                        mostrarMensagem('success', `Diretório selecionado: ${caminhoAtual} (${data.total_arquivos} arquivos processáveis)`);
+                    } else {
+                        mostrarMensagem('error', data.message);
+                    }
+                })
+                .catch(error => {
+                    mostrarMensagem('error', 'Erro ao validar diretório: ' + error.message);
+                });
         }
     </script>
     

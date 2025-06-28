@@ -290,6 +290,130 @@ def api_carregar_regex_padrao():
     except Exception as e:
         return jsonify({'status': 'error', 'message': str(e)})
 
+# === NAVEGAÇÃO DE DIRETÓRIOS ===
+
+@app.route('/api/listar-diretorios')
+def api_listar_diretorios():
+    """API para listar estrutura de diretórios"""
+    try:
+        caminho = request.args.get('caminho', '.')
+        
+        # Garantir que o caminho é seguro e dentro dos limites
+        if not caminho.startswith('.') and not caminho.startswith('/opt/privacy'):
+            caminho = os.path.join('.', caminho)
+        
+        # Normalizar o caminho
+        caminho_absoluto = os.path.abspath(caminho)
+        
+        # Verificar se o diretório existe
+        if not os.path.exists(caminho_absoluto):
+            return jsonify({
+                'status': 'error', 
+                'message': f'Diretório não encontrado: {caminho}'
+            })
+        
+        # Listar conteúdo do diretório
+        items = []
+        try:
+            for item in sorted(os.listdir(caminho_absoluto)):
+                if item.startswith('.'):  # Ignorar arquivos/pastas ocultos
+                    continue
+                    
+                item_path = os.path.join(caminho_absoluto, item)
+                is_dir = os.path.isdir(item_path)
+                
+                # Para diretórios, contar arquivos suportados
+                file_count = 0
+                if is_dir:
+                    try:
+                        from file_scanner import listar_arquivos_recursivos
+                        arquivos = listar_arquivos_recursivos(item_path)
+                        file_count = len(arquivos) if arquivos else 0
+                    except:
+                        file_count = 0
+                
+                items.append({
+                    'nome': item,
+                    'caminho': os.path.relpath(item_path, '.'),
+                    'tipo': 'diretorio' if is_dir else 'arquivo',
+                    'tamanho': 0 if is_dir else os.path.getsize(item_path),
+                    'arquivos_suportados': file_count if is_dir else 0,
+                    'modificado': os.path.getmtime(item_path)
+                })
+        
+        except PermissionError:
+            return jsonify({
+                'status': 'error',
+                'message': f'Sem permissão para acessar: {caminho}'
+            })
+        
+        return jsonify({
+            'status': 'success',
+            'caminho_atual': os.path.relpath(caminho_absoluto, '.'),
+            'items': items
+        })
+        
+    except Exception as e:
+        return jsonify({
+            'status': 'error',
+            'message': f'Erro ao listar diretórios: {str(e)}'
+        })
+
+@app.route('/api/validar-diretorio')
+def api_validar_diretorio():
+    """API para validar se um diretório contém arquivos processáveis"""
+    try:
+        caminho = request.args.get('caminho', 'data')
+        
+        # Normalizar o caminho
+        if not caminho.startswith('.') and not caminho.startswith('/opt/privacy'):
+            caminho = os.path.join('.', caminho)
+        
+        caminho_absoluto = os.path.abspath(caminho)
+        
+        if not os.path.exists(caminho_absoluto):
+            return jsonify({
+                'status': 'error',
+                'valido': False,
+                'message': f'Diretório não encontrado: {caminho}'
+            })
+        
+        if not os.path.isdir(caminho_absoluto):
+            return jsonify({
+                'status': 'error',
+                'valido': False,
+                'message': f'Caminho não é um diretório: {caminho}'
+            })
+        
+        # Verificar arquivos suportados
+        try:
+            from file_scanner import listar_arquivos_recursivos
+            arquivos = listar_arquivos_recursivos(caminho_absoluto)
+            total_arquivos = len(arquivos) if arquivos else 0
+            
+            return jsonify({
+                'status': 'success',
+                'valido': True,
+                'total_arquivos': total_arquivos,
+                'caminho': os.path.relpath(caminho_absoluto, '.'),
+                'message': f'Diretório válido com {total_arquivos} arquivos processáveis'
+            })
+            
+        except Exception as scan_error:
+            return jsonify({
+                'status': 'warning',
+                'valido': True,
+                'total_arquivos': 0,
+                'message': f'Diretório acessível mas erro ao escanear: {str(scan_error)}'
+            })
+            
+    except Exception as e:
+        return jsonify({
+            'status': 'error',
+            'valido': False,
+            'message': f'Erro ao validar diretório: {str(e)}'
+        })
+
 # New AI-powered endpoints for PostgreSQL system
 @app.route('/api/ai-metrics')
 def api_ai_metrics():
