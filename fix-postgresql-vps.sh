@@ -50,10 +50,14 @@ echo "🧪 Testing database connection with Python..."
 import asyncio
 import asyncpg
 import os
+from urllib.parse import quote_plus
 
 async def test_connection():
     try:
-        conn = await asyncpg.connect('postgresql://privacy_user:Lgpd2025#Privacy@localhost:5432/privacy_db')
+        # URL encode the password to handle special characters
+        password = quote_plus('Lgpd2025#Privacy')
+        conn_string = f'postgresql://privacy_user:{password}@localhost:5432/privacy_db'
+        conn = await asyncpg.connect(conn_string)
         version = await conn.fetchval('SELECT version()')
         print(f'✅ PostgreSQL connected: {version[:50]}...')
         await conn.close()

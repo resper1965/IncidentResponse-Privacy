@@ -7,8 +7,11 @@ Consolida e sincroniza dados sem afetar aplicação rodando
 import asyncio
 import asyncpg
 import os
+from urllib.parse import quote_plus
 
-DATABASE_URL = "postgresql://privacy_user:Lgpd2025#Privacy@localhost:5432/privacy_db"
+# URL encode the password to handle special characters
+password = quote_plus('Lgpd2025#Privacy')
+DATABASE_URL = f"postgresql://privacy_user:{password}@localhost:5432/privacy_db"
 
 PRIORIDADES = [
     (1, "BRADESCO", "bradesco.com.br"),
