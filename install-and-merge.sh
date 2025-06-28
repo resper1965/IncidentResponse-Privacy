@@ -5,12 +5,10 @@ echo "Installing asyncpg and running database merge..."
 
 cd /opt/privacy
 
-# Activate virtual environment and install asyncpg
-source venv/bin/activate
-pip install asyncpg --quiet
-deactivate
+# Install asyncpg directly in virtual environment
+/opt/privacy/venv/bin/pip install asyncpg
 
-# Run the database merge
-python3 vps-database-merge.py
+# Run the database merge using virtual environment python
+/opt/privacy/venv/bin/python3 vps-database-merge.py
 
 echo "Database merge completed"
