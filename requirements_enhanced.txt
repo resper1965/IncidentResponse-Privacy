@@ -1,0 +1,53 @@
+# Dependências principais do sistema
+flask==2.3.3
+gunicorn==21.2.0
+werkzeug==2.3.7
+
+# Processamento de documentos
+extract-msg==0.41
+eml-parser==1.14.0
+striprtf==0.0.26
+pymupdf==1.23.8
+python-docx==0.8.11
+openpyxl==3.1.2
+pandas==2.1.1
+
+# Banco de dados
+sqlite3
+psycopg2-binary==2.9.7
+
+# IA e Processamento de Linguagem Natural
+spacy==3.7.2
+nltk==3.8.1
+textblob==0.17.1
+
+# Regex e validação
+regex==2023.10.3
+validate-email==1.0.5
+
+# Utilitários
+python-dateutil==2.8.2
+pytz==2023.3
+hashlib
+pathlib
+
+# Logging e monitoramento
+structlog==23.2.0
+colorama==0.4.6
+
+# Segurança e criptografia
+cryptography==41.0.7
+bcrypt==4.1.2
+
+# Web scraping (se necessário)
+requests==2.31.0
+beautifulsoup4==4.12.2
+
+# Testes
+pytest==7.4.3
+pytest-cov==4.1.0
+
+# Desenvolvimento
+black==23.11.0
+flake8==6.1.0
+mypy==1.7.1 

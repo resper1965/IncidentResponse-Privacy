@@ -1,0 +1,57 @@
+{
+  "output_dir": "output",
+  "reports_dir": "reports",
+  "enable_semantic_ai": true,
+  "priority_clients": [
+    "bradesco",
+    "petrobras", 
+    "ons",
+    "embraer",
+    "rede_dor",
+    "globo",
+    "eletrobras",
+    "crefisa",
+    "equinix",
+    "cohesity"
+  ],
+  "validation_threshold": 0.7,
+  "max_file_size_mb": 100,
+  "regex_patterns": {
+    "cpf": {
+      "priority": "alta",
+      "validation_strict": true
+    },
+    "email": {
+      "priority": "alta", 
+      "validation_strict": true
+    },
+    "telefone": {
+      "priority": "media",
+      "validation_strict": false
+    },
+    "data_nascimento": {
+      "priority": "media",
+      "validation_strict": false
+    },
+    "cep": {
+      "priority": "baixa",
+      "validation_strict": false
+    }
+  },
+  "semantic_ai": {
+    "enable_ner": true,
+    "enable_context_analysis": true,
+    "confidence_boost_priority": 0.1,
+    "max_context_window": 200
+  },
+  "validation": {
+    "auto_correct": true,
+    "strict_mode": false,
+    "log_corrections": true
+  },
+  "logging": {
+    "level": "INFO",
+    "file_logging": true,
+    "log_file": "processor.log"
+  }
+} 

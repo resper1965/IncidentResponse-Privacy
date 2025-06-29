@@ -1,14 +1,14 @@
-# Configuração simplificada para n.crisisops
+# Configuração do Gunicorn para VPS
 bind = "0.0.0.0:5000"
-workers = 1
+workers = 2
 worker_class = "sync"
-timeout = 120
+worker_connections = 1000
+timeout = 300
 keepalive = 2
-preload_app = False
+max_requests = 1000
+max_requests_jitter = 50
+preload_app = True
 reload = False
-daemon = False
-pidfile = "/opt/privacy/gunicorn.pid"
-accesslog = "/opt/privacy/logs/gunicorn_access.log"
-errorlog = "/opt/privacy/logs/gunicorn_error.log"
-loglevel = "debug"
-capture_output = True
+accesslog = "-"
+errorlog = "-"
+loglevel = "info"

@@ -1,0 +1,84 @@
+{
+  "output_dir": "output",
+  "reports_dir": "reports",
+  "enable_semantic_ai": true,
+  "priority_clients": [
+    "bradesco",
+    "petrobras", 
+    "ons",
+    "embraer",
+    "rede_dor",
+    "globo",
+    "eletrobras",
+    "crefisa",
+    "equinix",
+    "cohesity"
+  ],
+  "validation_threshold": 0.7,
+  "max_file_size_mb": 100,
+  "recursive": {
+    "max_depth": -1,
+    "file_patterns": [
+      "*.txt",
+      "*.doc",
+      "*.docx", 
+      "*.pdf",
+      "*.eml",
+      "*.msg",
+      "*.rtf",
+      "*.csv",
+      "*.xlsx",
+      "*.xls"
+    ],
+    "exclude_patterns": [
+      "*.tmp",
+      "*.bak",
+      "*.log",
+      "*.cache",
+      "*.swp",
+      "*.lock",
+      "Thumbs.db",
+      ".DS_Store"
+    ],
+    "exclude_directories": [
+      "node_modules",
+      ".git",
+      "__pycache__",
+      ".vscode",
+      "temp",
+      "tmp",
+      "cache",
+      "logs",
+      "backup",
+      "bin",
+      "obj",
+      ".vs",
+      "target"
+    ],
+    "max_file_size_mb": 100,
+    "parallel_processing": true,
+    "max_workers": 4,
+    "progress_reporting": true,
+    "save_intermediate_results": true,
+    "resume_from_checkpoint": true,
+    "checkpoint_file": "recursive_checkpoint.json",
+    "scan_summary": true,
+    "detailed_logging": true
+  },
+  "semantic_ai": {
+    "enable_ner": true,
+    "enable_context_analysis": true,
+    "confidence_boost_priority": 0.1,
+    "max_context_window": 200
+  },
+  "validation": {
+    "auto_correct": true,
+    "strict_mode": false,
+    "log_corrections": true
+  },
+  "logging": {
+    "level": "INFO",
+    "file_logging": true,
+    "log_file": "recursive_processor.log"
+  }
+} 
