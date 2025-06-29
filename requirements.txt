@@ -1,4 +1,35 @@
+# n.crisisops Privacy LGPD System - Dependências
+# Repositório oficial: https://github.com/resper1965/IncidentResponse-Privacy
+
+# Framework web principal
 Flask==2.3.3
+
+# Utilitários do Flask
 Werkzeug==2.3.7
+
+# Servidor WSGI para produção
 gunicorn==21.2.0
-python-dotenv==1.0.0 
+
+# Gerenciamento de variáveis de ambiente
+python-dotenv==1.0.0
+
+# Processamento de arquivos PDF
+PyPDF2==3.0.1
+
+# Processamento de arquivos DOC/DOCX
+python-docx==0.8.11
+
+# Processamento de arquivos RTF
+striprtf==0.0.26
+
+# Processamento de arquivos EML/MSG
+extract-msg==0.41.0
+
+# Detecção de tipo de arquivo
+python-magic==0.4.27
+
+# Validação de dados
+email-validator==2.0.0
+
+# Logging estruturado
+structlog==23.1.0 

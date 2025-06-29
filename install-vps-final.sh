@@ -1,11 +1,13 @@
 #!/bin/bash
 
-# Script de Instalação Final para VPS
-# n.crisisops Privacy LGPD System
+# n.crisisops Privacy LGPD System - Instalação para VPS
+# Repositório oficial: https://github.com/resper1965/IncidentResponse-Privacy
+# Sempre utilize a versão mais recente do repositório acima!
 
 set -e
 
 echo "🚀 Iniciando instalação do n.crisisops Privacy LGPD System..."
+echo "🔗 Repositório oficial: https://github.com/resper1965/IncidentResponse-Privacy"
 
 # Cores para output
 RED='\033[0;31m'

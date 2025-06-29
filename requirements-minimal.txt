@@ -1,0 +1,6 @@
+# n.crisisops Privacy LGPD System - Dependências Mínimas
+# Repositório oficial: https://github.com/resper1965/IncidentResponse-Privacy
+
+Flask>=2.3.0
+Werkzeug>=2.3.0
+gunicorn>=21.0.0 

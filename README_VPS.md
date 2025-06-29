@@ -1,5 +1,7 @@
 # n.crisisops Privacy LGPD - Sistema Funcional para VPS
 
+> **Repositório oficial:** [https://github.com/resper1965/IncidentResponse-Privacy](https://github.com/resper1965/IncidentResponse-Privacy)
+
 ## 🚀 Visão Geral
 
 Sistema completo de extração e análise de dados para conformidade com a LGPD, otimizado para execução em VPS Linux.
@@ -32,16 +34,15 @@ Sistema completo de extração e análise de dados para conformidade com a LGPD,
 ssh usuario@seu-vps-ip
 ```
 
-#### 2. Baixar o projeto
+#### 2. Baixar o projeto do repositório oficial
 ```bash
 # Criar diretório de trabalho
 mkdir -p ~/privacy-lgpd
 cd ~/privacy-lgpd
 
-# Baixar arquivos (substitua pela URL real)
-wget https://github.com/seu-repo/privacy-lgpd/archive/main.zip
-unzip main.zip
-cd privacy-lgpd-main
+# Clonar o repositório oficial
+git clone https://github.com/resper1965/IncidentResponse-Privacy.git
+cd IncidentResponse-Privacy
 ```
 
 #### 3. Executar instalação
@@ -332,6 +333,7 @@ pip install -r requirements.txt
 - **Equipe**: n.crisisops
 - **Documentação**: Este arquivo
 - **Logs**: `/opt/privacy-lgpd/logs/`
+- **Repositório oficial**: https://github.com/resper1965/IncidentResponse-Privacy
 
 ### Informações do Sistema
 ```bash
@@ -348,7 +350,7 @@ cd /opt/privacy-lgpd && ./status.sh
 ## ✅ Checklist de Instalação
 
 - [ ] Python 3.8+ instalado
-- [ ] Arquivos do projeto baixados
+- [ ] Arquivos do projeto baixados do repositório oficial
 - [ ] Script de instalação executado
 - [ ] Sistema iniciado com sucesso
 - [ ] Interface web acessível
@@ -362,4 +364,6 @@ cd /opt/privacy-lgpd && ./status.sh
 
 O sistema n.crisisops Privacy LGPD está pronto para uso em produção na VPS. Todas as funcionalidades foram testadas e validadas para garantir robustez e confiabilidade.
 
-**Status**: ✅ **FUNCIONAL E PRONTO PARA PRODUÇÃO** 
+**Status**: ✅ **FUNCIONAL E PRONTO PARA PRODUÇÃO**
+
+> **Repositório oficial:** [https://github.com/resper1965/IncidentResponse-Privacy](https://github.com/resper1965/IncidentResponse-Privacy) 

@@ -18,6 +18,36 @@ from werkzeug.utils import secure_filename
 from pathlib import Path
 import threading
 import time
+import magic
+
+# Bibliotecas para processamento de arquivos
+try:
+    import PyPDF2
+    PDF_AVAILABLE = True
+except ImportError:
+    PDF_AVAILABLE = False
+    logging.warning("PyPDF2 não disponível - arquivos PDF não serão processados")
+
+try:
+    from docx import Document
+    DOCX_AVAILABLE = True
+except ImportError:
+    DOCX_AVAILABLE = False
+    logging.warning("python-docx não disponível - arquivos DOCX não serão processados")
+
+try:
+    from striprtf.striprtf import rtf_to_text
+    RTF_AVAILABLE = True
+except ImportError:
+    RTF_AVAILABLE = False
+    logging.warning("striprtf não disponível - arquivos RTF não serão processados")
+
+try:
+    import extract_msg
+    MSG_AVAILABLE = True
+except ImportError:
+    MSG_AVAILABLE = False
+    logging.warning("extract-msg não disponível - arquivos MSG não serão processados")
 
 # Configurar logging
 logging.basicConfig(
@@ -227,17 +257,84 @@ class DataExtractor:
         return len(numeros) == 8
 
 class FileProcessor:
-    """Processador de arquivos"""
+    """Processador de arquivos com suporte a múltiplos formatos"""
     
     def __init__(self):
         self.extractor = DataExtractor()
     
+    def read_file_content(self, file_path):
+        """Ler conteúdo de arquivo baseado no tipo"""
+        try:
+            file_type = magic.from_file(file_path, mime=True)
+            file_extension = Path(file_path).suffix.lower()
+            
+            logger.info(f"Processando arquivo: {file_path} (tipo: {file_type}, extensão: {file_extension})")
+            
+            # Arquivos de texto simples
+            if file_type.startswith('text/') or file_extension in ['.txt']:
+                with open(file_path, 'r', encoding='utf-8', errors='ignore') as f:
+                    return f.read()
+            
+            # Arquivos PDF
+            elif file_type == 'application/pdf' or file_extension == '.pdf':
+                if not PDF_AVAILABLE:
+                    raise Exception("PyPDF2 não está disponível para processar PDFs")
+                
+                text_content = []
+                with open(file_path, 'rb') as f:
+                    pdf_reader = PyPDF2.PdfReader(f)
+                    for page in pdf_reader.pages:
+                        text_content.append(page.extract_text())
+                return '\n'.join(text_content)
+            
+            # Arquivos DOCX
+            elif file_type == 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' or file_extension == '.docx':
+                if not DOCX_AVAILABLE:
+                    raise Exception("python-docx não está disponível para processar DOCX")
+                
+                doc = Document(file_path)
+                text_content = []
+                for paragraph in doc.paragraphs:
+                    text_content.append(paragraph.text)
+                return '\n'.join(text_content)
+            
+            # Arquivos RTF
+            elif file_type == 'application/rtf' or file_extension == '.rtf':
+                if not RTF_AVAILABLE:
+                    raise Exception("striprtf não está disponível para processar RTF")
+                
+                with open(file_path, 'r', encoding='utf-8', errors='ignore') as f:
+                    rtf_content = f.read()
+                return rtf_to_text(rtf_content)
+            
+            # Arquivos MSG
+            elif file_type == 'application/vnd.ms-outlook' or file_extension == '.msg':
+                if not MSG_AVAILABLE:
+                    raise Exception("extract-msg não está disponível para processar MSG")
+                
+                msg = extract_msg.Message(file_path)
+                return f"Assunto: {msg.subject}\nDe: {msg.sender}\nPara: {msg.to}\n\n{msg.body}"
+            
+            # Arquivos EML
+            elif file_type == 'message/rfc822' or file_extension == '.eml':
+                with open(file_path, 'r', encoding='utf-8', errors='ignore') as f:
+                    return f.read()
+            
+            # Tentar como texto genérico
+            else:
+                logger.warning(f"Tipo de arquivo não reconhecido: {file_type}. Tentando como texto...")
+                with open(file_path, 'r', encoding='utf-8', errors='ignore') as f:
+                    return f.read()
+                    
+        except Exception as e:
+            logger.error(f"Erro ao ler arquivo {file_path}: {e}")
+            raise
+    
     def process_file(self, file_path):
         """Processar arquivo individual"""
         try:
-            # Ler arquivo
-            with open(file_path, 'r', encoding='utf-8', errors='ignore') as f:
-                content = f.read()
+            # Ler conteúdo do arquivo
+            content = self.read_file_content(file_path)
             
             # Extrair dados
             filename = os.path.basename(file_path)
@@ -339,7 +436,7 @@ def process_file():
             return jsonify({'success': False, 'error': 'Nenhum arquivo selecionado'}), 400
         
         # Salvar arquivo
-        filename = secure_filename(file.filename)
+        filename = secure_filename(file.filename) if file.filename else 'arquivo_sem_nome'
         file_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
         file.save(file_path)
         
